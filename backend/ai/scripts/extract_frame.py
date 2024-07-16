@@ -1,11 +1,11 @@
-from utils import *
+from scripts.utils import *
 import os
 import cv2
 import numpy as np
-from embedding_model import CLIP_Embedding
+from scripts.embedding_model import CLIP_Embedding
 import torch
 
-def extract_frame(video_path, output_dir, embedding_model=CLIP_Embedding , threshold = 1e-3):
+def extract_frame(video_path, output_dir, embedding_model, threshold = 1e-3):
     video_name = os.path.basename(video_path).split('.')[0]
     video_name = video_name.replace(' ', '_')
     out_dir = os.path.join(output_dir, video_name)
@@ -17,7 +17,6 @@ def extract_frame(video_path, output_dir, embedding_model=CLIP_Embedding , thres
     v_prev = None
     total_frame = 0
     idx = 0
-    print(f'Extracting frames from {video_name}')
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -48,7 +47,6 @@ def extract_frame(video_path, output_dir, embedding_model=CLIP_Embedding , thres
         v_prev = v
         total_frame += 1
     cap.release()
-    print(f'Extracted {frame_count} frames from {total_frame} frames of {video_name}')
 
 def similar_frame(frame1, frame2, frame3):
     return np.linalg.norm(frame1-frame3) / frame1.shape[1]
