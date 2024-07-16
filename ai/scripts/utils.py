@@ -3,6 +3,16 @@ from torchvision import transforms
 import faiss
 from tqdm import tqdm
 import numpy as np
+import os
+
+def wfile(root, endswith='.mp4'):
+    paths = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        for filename in filenames:
+            if filename.endswith(endswith):
+                paths.append(os.path.join(dirpath, filename))
+    sorted(paths)
+    return paths
 
 def img_preprocess(img_path, transform=transforms.Compose([transforms.Resize((1024, 1024))]), expand_dims=False):
     img = Image.open(img_path)
@@ -18,6 +28,7 @@ def path2Embedding(img_path, embedding_model):
 
 def create_index_frame(id2img, embedding_model, embedding_dim=768, _index = faiss.IndexFlatIP):
     frame_index = _index(embedding_dim)
+
     for img_id, img_path in tqdm(id2img.items()):
         try:
             img = img_preprocess(img_path)
@@ -27,3 +38,11 @@ def create_index_frame(id2img, embedding_model, embedding_dim=768, _index = fais
         except Exception as e:
             print(f"Error processing image {img_path}: {e}")
     return frame_index
+
+def dictionary_frame(path_to_frames):
+    id2img = {}
+    paths = wfile(path_to_frames, '.jpg')
+    for id, path in enumerate(paths):
+        id2img[id] = path
+
+    return id2img
