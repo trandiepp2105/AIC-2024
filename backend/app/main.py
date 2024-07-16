@@ -3,11 +3,10 @@ from fastapi.routing import APIRoute
 from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
 from api.main import api_router
-from core.database import init_db
+from core.database import init_db, load_data_from_folders
 from contextlib import asynccontextmanager
 from core.config import settings
-
-
+import logging
 
 app = FastAPI()
 
@@ -35,6 +34,18 @@ async def infor():
     return {
         "SQLALCHEMY_DATABASE_URI": settings.SQLALCHEMY_DATABASE_URI,
     }
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# FRAME_DIR = "D:\\AIC-2024-DATA\\frames"
+# VIDEO_DIR = "D:\\AIC-2024-DATA\\videos"
+
+# def main():
+#     init_db()
+#     # load_data_from_folders(frames_folder=FRAME_DIR, videos_folder=VIDEO_DIR)
+
+#     # Chạy ứng dụng FastAPI
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# # if __name__ == "__main__":
+# #     main()
+# main()
