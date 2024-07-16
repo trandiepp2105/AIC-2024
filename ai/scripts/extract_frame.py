@@ -5,15 +5,6 @@ import numpy as np
 from embedding_model import CLIP_Embedding
 import torch
 
-def wfile(root, endswith='.mp4'):
-    paths = []
-    for dirpath, dirnames, filenames in os.walk(root):
-        for filename in filenames:
-            if filename.endswith(endswith):
-                paths.append(os.path.join(dirpath, filename))
-    sorted(paths)
-    return paths
-
 def extract_frame(video_path, output_dir, embedding_model=CLIP_Embedding , threshold = 1e-3):
     video_name = os.path.basename(video_path).split('.')[0]
     video_name = video_name.replace(' ', '_')
