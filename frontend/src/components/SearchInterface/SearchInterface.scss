@@ -1,0 +1,131 @@
+.search-interface {
+  width: 20%;
+  height: 100%;
+
+  .container {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+      display: none; /* Ẩn thanh cuộn */
+    }
+    .wrapper-raw-text-area {
+      width: 100%;
+      .raw-text-area {
+        min-width: 100%;
+        max-width: 100%;
+        min-height: 100px;
+        border: 1px solid black;
+        border-radius: 3px;
+        outline: none;
+        padding: 5px;
+      }
+    }
+
+    .wrapper-search-by-task-area {
+      width: 100%;
+
+      .task-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        margin-bottom: 3px;
+        .label-task {
+          width: 30%;
+          margin-right: 2px;
+          font-size: 13px;
+          font-weight: bold;
+        }
+
+        .task-content {
+          width: 70%;
+          outline: none;
+          padding: 2px;
+          padding-top: 0;
+        }
+      }
+    }
+
+    .button-block {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      & > button {
+        width: calc((100% - 10px) / 2);
+      }
+      .search-button {
+        font-weight: bold;
+        color: black;
+        background-color: rgb(83, 170, 224);
+        padding: 7px;
+        margin: 5px 0;
+        outline: none;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: medium;
+        &:hover {
+          filter: brightness(90%);
+        }
+
+        &:active {
+          filter: brightness(100%);
+        }
+      }
+
+      .clear-button {
+        font-weight: bold;
+        color: black;
+        background-color: rgb(227, 112, 118);
+        padding: 7px;
+        margin: 5px 0;
+        outline: none;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: medium;
+        &:hover {
+          filter: brightness(90%);
+        }
+
+        &:active {
+          filter: brightness(100%);
+        }
+      }
+    }
+
+    .wrapper-frame-selected {
+      box-sizing: border-box;
+      width: 100%;
+      .title {
+        padding: 5px;
+        display: flex;
+        justify-content: center;
+        outline: none;
+        border: 1px solid black;
+      }
+
+      .content {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        box-sizing: border-box;
+        border: 1px dashed black;
+        margin-top: 2px;
+        padding: 2px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        // border-top: none;
+      }
+    }
+
+    .wrapper-color-picker {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+  }
+}

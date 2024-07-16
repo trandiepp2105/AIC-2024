@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+sqlalchemy 
+pymysql
+pydantic
+pydantic-core
+pydantic-settings
+typing-extensions
+databases 
+mysql-connector-python
+python-dotenv
+sqlmodel
+pyjwt
+passlib
+alembic
