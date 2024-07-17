@@ -1,16 +1,31 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.routing import APIRoute
 from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
 from api.main import api_router
-from core.database import init_db, load_data_from_folders
+from core.database import load_data_from_folders
 from contextlib import asynccontextmanager
 from core.config import settings
+import os
+
 import logging
 import uvicorn
 
 app = FastAPI()
+video_directory = "D:/AIC-2024-DATA/videos"
+frames_directory = "D:/AIC-2024-DATA/frames"
 
+# Kiểm tra nếu thư mục tồn tại và mount các thư mục tĩnh
+if os.path.isdir(video_directory):
+    app.mount("/videos", StaticFiles(directory=video_directory), name="videos")
+else:
+    raise Exception(f"Directory {video_directory} does not exist")
+
+if os.path.isdir(frames_directory):
+    app.mount("/frames", StaticFiles(directory=frames_directory), name="frames")
+else:
+    raise Exception(f"Directory {frames_directory} does not exist")
 # Cấu hình CORS
 origins = [
     "http://localhost",
@@ -30,23 +45,20 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api")
 
+@app.get("/")
+async def root():
+    return {"message": "Root page"}
+
 @app.get("/infor")
 async def infor():
     return {
         "SQLALCHEMY_DATABASE_URI": settings.SQLALCHEMY_DATABASE_URI,
     }
 
-# FRAME_DIR = "C:\\AIC-2024-DATA\\frames"
-# VIDEO_DIR = "C:\\AIC-2024-DATA\\videos"
-
-# def main():
-    # init_db()
-    # load_data_from_folders(frames_folder=FRAME_DIR, videos_folder=VIDEO_DIR)
-
-    # Chạy ứng dụng FastAPI
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="localhost", port=8000, reload=True)
-
-# if __name__ == "__main__":
-#     main()
-# main()
+@app.middleware("http")
+async def add_cors_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, DELETE, PUT"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response

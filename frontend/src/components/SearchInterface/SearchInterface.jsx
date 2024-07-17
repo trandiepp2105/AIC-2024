@@ -2,9 +2,11 @@ import React from "react";
 import axios from "axios";
 import "./SearchInterface.scss";
 import ColorPicker from "../ColorPicker/ColorPicker";
-import { useSearchData } from "../../pages/home-page/HomePage";
+import { useHomeContext } from "../../pages/home-page/HomePage";
+// import searchText from "../../services/search_text";
 const SearchInterface = () => {
-  const { searchData, setSearchData, initialSearchData } = useSearchData();
+  const { searchData, setSearchData, initialSearchData, handleSearchText } =
+    useHomeContext();
   const handleChangeSearchData = (e) => {
     const { name, value } = e.target;
     setSearchData((prevData) => ({
@@ -16,23 +18,27 @@ const SearchInterface = () => {
   const resetSearchData = () => {
     setSearchData(initialSearchData);
   };
+
   const handleSubmit = async () => {
-    console.log("data:", searchData);
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/search/",
-        searchData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("Response:", response.data);
-    } catch (error) {
-      console.error("Error sending data:", error);
-    }
+    await handleSearchText(searchData);
   };
+  // const handleSubmit = async () => {
+  //   console.log("data:", searchData);
+  //   try {
+  //     const response = await axios.post(
+  //       "http://127.0.0.1:8000/api/search/text",
+  //       searchData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+  //     console.log("Response:", response.data);
+  //   } catch (error) {
+  //     console.error("Error sending data:", error);
+  //   }
+  // };
   return (
     <div className="search-interface">
       <div className="container">

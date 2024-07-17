@@ -1,13 +1,13 @@
 import React, { useState, useRef } from "react";
 import "./BrowsingInterface.scss";
 import VideoPlayer from "../VideoPlayer/VideoPlayer";
-import { useSearchData } from "../../pages/home-page/HomePage";
-const BrowsingInterface = () => {
+import { useHomeContext } from "../../pages/home-page/HomePage";
+const BrowsingInterface = ({ frameDisplay }) => {
   const [frameSelected, setFrameItemSelected] = useState(null);
   const [groupedFrames, setGroupedFrames] = useState(new Set());
   const [playVideo, setPlayVideo] = useState(false);
   const videoPlayerRef = useRef(null);
-  const { searchData, setSearchData } = useSearchData();
+  const { searchData, setSearchData } = useHomeContext();
   const handleDoubleClickFrameItem = (index) => {
     setGroupedFrames((prevGroupedFrames) => {
       const newGroupedFrames = new Set(prevGroupedFrames);
@@ -51,7 +51,8 @@ const BrowsingInterface = () => {
   return (
     <div className="browsing-interface">
       <ul className="frame-browsing-area">
-        {Array.from({ length: 50 }).map((_, index) => (
+        {frameDisplay.map((frame, index) => (
+          // console.log("frame:", frame)
           <li
             key={index}
             className={`frame-item ${
@@ -60,11 +61,7 @@ const BrowsingInterface = () => {
             onClick={(event) => handleClickFrameItem(event, index)}
             onDoubleClick={() => handleDoubleClickFrameItem(index)}
           >
-            <img
-              src="https://i.pinimg.com/736x/1f/82/e4/1f82e49178198aca68d3dd000f05acae.jpg"
-              alt="img-frame"
-              className="img-frame"
-            />
+            <img src={frame.path} alt="img-frame" className="img-frame" />
           </li>
         ))}
       </ul>
