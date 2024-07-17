@@ -33,6 +33,11 @@ class Faiss_Index:
         distances, indices = self.index.search(image_embedding, top_k)
         return distances, indices
 
+class FaissIndexSingleton:
+    _instance = None
 
-
+    def __new__(cls, index_path, embedding_model, load=True, embedding_dim=768, id2img=None, _index = faiss.IndexFlatIP):
+        if cls._instance is None:
+            cls._instance = Faiss_Index(index_path, embedding_model, load, embedding_dim, id2img, _index)
+        return cls._instance
 

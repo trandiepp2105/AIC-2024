@@ -13,8 +13,8 @@ import logging
 import uvicorn
 
 app = FastAPI()
-video_directory = "D:/AIC-2024-DATA/videos"
-frames_directory = "D:/AIC-2024-DATA/frames"
+video_directory = "C:/AIC-2024-DATA/videos"
+frames_directory = "C:/AIC-2024-DATA/frames"
 
 # Kiểm tra nếu thư mục tồn tại và mount các thư mục tĩnh
 if os.path.isdir(video_directory):
