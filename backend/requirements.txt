@@ -13,3 +13,4 @@ sqlmodel
 pyjwt
 passlib
 alembic
+cryptography
