@@ -1,6 +1,7 @@
 from typing import List, Any
 from sqlmodel import Session, select
 from models import FrameBase, Frame
+from api.deps import SessionDep
 
 
 def create_frame(session: Session, frame_create: FrameBase):
@@ -25,3 +26,14 @@ def get_frames( session: Session, frame_ids: List[int]) -> Any:
     statement = select(Frame).where(Frame.id.in_(frame_ids))
     results = session.exec(statement).all()
     return results
+
+def get_all_frames(session: Session) -> Any:
+    """
+    Retrieve all frames.
+    """
+    statement = select(Frame)
+    results = session.exec(statement).all()
+    return results
+
+# rel = get_all_frames(SessionDep())
+# print(rel)

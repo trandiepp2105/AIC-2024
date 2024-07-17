@@ -29,10 +29,10 @@ def get_frame(session: SessionDep, frame_id: Optional[int] = None) -> Any:
     Retrieve frames by frame_id.
     """
     if frame_id is None:
-        raise HTTPException(status_code=400, detail="frame_id is required")
+        frame = crud.get_all_frames(session)
+        return frame
+    
     frame = crud.get_frame(session, frame_id)
-    if frame is None:
-        raise HTTPException(status_code=404, detail="Frame not found")
     return frame
 
 @router.post(

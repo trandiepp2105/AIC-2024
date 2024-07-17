@@ -7,6 +7,7 @@ from core.database import init_db, load_data_from_folders
 from contextlib import asynccontextmanager
 from core.config import settings
 import logging
+import uvicorn
 
 app = FastAPI()
 
@@ -35,17 +36,17 @@ async def infor():
         "SQLALCHEMY_DATABASE_URI": settings.SQLALCHEMY_DATABASE_URI,
     }
 
-# FRAME_DIR = "D:\\AIC-2024-DATA\\frames"
-# VIDEO_DIR = "D:\\AIC-2024-DATA\\videos"
+# FRAME_DIR = "C:\\AIC-2024-DATA\\frames"
+# VIDEO_DIR = "C:\\AIC-2024-DATA\\videos"
 
 # def main():
-#     init_db()
-#     # load_data_from_folders(frames_folder=FRAME_DIR, videos_folder=VIDEO_DIR)
+    # init_db()
+    # load_data_from_folders(frames_folder=FRAME_DIR, videos_folder=VIDEO_DIR)
 
-#     # Chạy ứng dụng FastAPI
-#     import uvicorn
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Chạy ứng dụng FastAPI
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="localhost", port=8000, reload=True)
 
-# # if __name__ == "__main__":
-# #     main()
+# if __name__ == "__main__":
+#     main()
 # main()
