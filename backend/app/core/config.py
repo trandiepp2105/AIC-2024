@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     DOMAIN: str = "localhost"
+    PORT: int = 8000
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
     BACKEND_CORS_ORIGINS: Annotated[
@@ -43,6 +44,8 @@ class Settings(BaseSettings):
     MYSQL_PASSWORD: str
     MYSQL_DB: str
 
+    VIDEOS_PATH: str
+    FRAMES_PATH: str
     @property
     def MYSQL_PASSWORD_ENCODE(self) -> str:
         return urllib.parse.quote(self.MYSQL_PASSWORD)
@@ -51,8 +54,8 @@ class Settings(BaseSettings):
     def server_host(self) -> str:
         # Use HTTPS for anything other than local development
         if self.ENVIRONMENT == "local":
-            return f"http://{self.DOMAIN}"
-        return f"https://{self.DOMAIN}"
+            return f"http://{self.DOMAIN}:{self.PORT}"
+        return f"https://{self.DOMAIN}:{self.PORT}"
 
 
     @property
