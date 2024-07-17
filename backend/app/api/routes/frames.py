@@ -33,14 +33,6 @@ def get_frames(
     """
     Retrieve all frames with pagination support.
     """
-<<<<<<< HEAD
-    if frame_id is None:
-        frame = crud.get_all_frames(session)
-        return frame
-    
-    frame = crud.get_frame(session, frame_id)
-    return frame
-=======
     frames = crud.read_frames(session, limit=limit, offset=offset)
     total_frames = crud.count_frames(session)
 
@@ -65,7 +57,6 @@ def get_frames(
         "previous": previous_url,
         "results": frames
     }
->>>>>>> ababde4ca2cbf3431cf7a0e53303da36340d105d
 
 @router.post(
     "/query",

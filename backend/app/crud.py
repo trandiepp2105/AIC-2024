@@ -2,7 +2,7 @@ from fastapi import Query
 from typing import List, Any, Optional
 from sqlmodel import Session, select
 from models import FrameBase, Frame
-
+from sqlalchemy.sql import func
 
 def create_frame(session: Session, frame_create: FrameBase):
     frame = Frame.model_validate(frame_create)
@@ -35,6 +35,21 @@ def get_mul_frames( session: Session, frame_ids: List[int]) -> Any:
     """
     Retrieve frames by a list of frame_ids.
     """
-    statement = select(Frame).where(Frame.id.in_(frame_ids))
-    results = session.exec(statement).all()
-    return results
+    # statement = select(Frame).where(Frame.id.in_(frame_ids))
+    # results = session.exec(statement).all()
+    # return results
+    resuilt = []
+    for frame_id in frame_ids:
+        statement = select(Frame).where(Frame.id == frame_id)
+        result = session.exec(statement).first()
+        resuilt.append(result)
+    return resuilt
+        
+
+def count_frames(session: Session) -> int:
+    """
+    Count the total number of frames.
+    """
+    statement = select(func.count(Frame.id))
+    result = session.execute(statement).scalar_one()  # Sử dụng scalar_one() để lấy giá trị đơn
+    return result
