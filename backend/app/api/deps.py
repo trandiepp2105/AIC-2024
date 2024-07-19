@@ -1,5 +1,5 @@
-from core.database import engine
-from fastapi import Depends, HTTPException, status
+from app.core.database import engine
+from fastapi import Depends
 from sqlmodel import Session
 from typing import Annotated
 

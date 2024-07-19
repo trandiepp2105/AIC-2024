@@ -1,9 +1,8 @@
 from sqlmodel import SQLModel, create_engine, Session
-import urllib.parse
 import logging
 import os
-from core.config import settings
-from models import Video, Frame
+from app.core.config import settings
+from app.models import Video, Frame
 
 DATABASE_URL = settings.SQLALCHEMY_DATABASE_URI
 
@@ -59,3 +58,4 @@ def load_data_from_folders(frames_folder: str, videos_folder: str):
                         session.add(frame)
 
         session.commit()
+
