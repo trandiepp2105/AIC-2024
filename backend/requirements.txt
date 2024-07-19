@@ -14,3 +14,8 @@ pyjwt
 passlib
 alembic
 cryptography
+torch
+torchvision
+pandas
+matplotlib
+ultralytics
