@@ -1,12 +1,12 @@
-import React from "react";
-import axios from "axios";
+import React, { useCallback, useEffect } from "react";
 import "./SearchInterface.scss";
 import ColorPicker from "../ColorPicker/ColorPicker";
 import { useHomeContext } from "../../pages/home-page/HomePage";
-// import searchText from "../../services/search_text";
+
 const SearchInterface = () => {
   const { searchData, setSearchData, initialSearchData, handleSearchText } =
     useHomeContext();
+
   const handleChangeSearchData = (e) => {
     const { name, value } = e.target;
     setSearchData((prevData) => ({
@@ -19,26 +19,63 @@ const SearchInterface = () => {
     setSearchData(initialSearchData);
   };
 
-  const handleSubmit = async () => {
+  // Memoize handleSubmit to avoid recreation on every render
+  const handleSubmit = useCallback(async () => {
     await handleSearchText(searchData);
-  };
-  // const handleSubmit = async () => {
-  //   console.log("data:", searchData);
-  //   try {
-  //     const response = await axios.post(
-  //       "http://127.0.0.1:8000/api/search/text",
-  //       searchData,
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-  //     console.log("Response:", response.data);
-  //   } catch (error) {
-  //     console.error("Error sending data:", error);
-  //   }
-  // };
+    // Làm mất focus khỏi tất cả các trường nhập liệu
+    const focusedElement = document.activeElement;
+    if (focusedElement) {
+      focusedElement.blur();
+    }
+  }, [searchData, handleSearchText]);
+
+  // Memoize handleKeyDown to avoid recreation on every render
+  const handleKeyDown = useCallback(
+    (e) => {
+      // Kiểm tra phần tử hiện tại có focus hay không
+      const focusedElement = document.activeElement;
+      const isInputOrTextarea =
+        focusedElement.tagName === "TEXTAREA" ||
+        focusedElement.tagName === "INPUT";
+
+      if (e.key === "Enter") {
+        if (e.shiftKey) {
+          // Nếu Shift + Enter thì xuống dòng
+          e.preventDefault();
+          if (focusedElement.tagName === "TEXTAREA") {
+            const cursorPosition = focusedElement.selectionStart;
+            const value = focusedElement.value;
+            focusedElement.value =
+              value.substring(0, cursorPosition) +
+              "\n" +
+              value.substring(cursorPosition);
+            focusedElement.selectionStart = cursorPosition + 1;
+            focusedElement.selectionEnd = cursorPosition + 1;
+            setSearchData((prevData) => ({
+              ...prevData,
+              rawText: focusedElement.value,
+            }));
+          }
+        } else if (isInputOrTextarea) {
+          // Nếu chỉ Enter thì submit
+          e.preventDefault();
+          handleSubmit();
+        }
+      }
+    },
+    [handleSubmit, setSearchData]
+  );
+
+  useEffect(() => {
+    // Thêm sự kiện keydown vào document khi component mount
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Xóa sự kiện khi component unmount
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]); // Phụ thuộc vào handleKeyDown để đảm bảo sự kiện được cập nhật
+
   return (
     <div className="search-interface">
       <div className="container">

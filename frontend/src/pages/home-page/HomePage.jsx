@@ -18,14 +18,25 @@ const HomePage = () => {
   const [searchResults, setSearchResults] = useState([]);
 
   const handleSearchText = async (searchData) => {
+    console.log("search data: ", searchData);
     try {
       const results = await searchText(searchData);
-      console.log(results);
-      setSearchResults(results);
+
+      // Kiểm tra xem kết quả trả về từ searchText có khác null không và có status thành công
+      if (results && results.status >= 200 && results.status < 300) {
+        console.log("Search results:", results);
+        setSearchResults(results.data.result); // Gán dữ liệu trả về cho searchResults
+      } else {
+        console.log("No results or unsuccessful response");
+        setSearchResults([]); // Gán giá trị rỗng nếu không có kết quả hoặc response không thành công
+      }
+      console.log("rel: ", results);
     } catch (error) {
       console.error("Search failed:", error);
+      setSearchResults([]); // Gán giá trị rỗng trong trường hợp xảy ra lỗi
     }
   };
+
   return (
     <HomePageContext.Provider
       value={{ searchData, setSearchData, initialSearchData, handleSearchText }}

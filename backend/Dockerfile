@@ -1,3 +1,22 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.10
+# syntax = docker/dockerfile:1.4
 
-WORKDIR /app/
+# FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9-slim AS builder
+FROM python:3.10
+
+WORKDIR /backend
+
+COPY requirements.txt ./
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
+
+COPY ./ ./
+
+ENV PYTHONPATH=/backend
+
+COPY entrypoint.sh /entrypoint.sh
+
+# Đảm bảo script có quyền thực thi
+RUN chmod +x /entrypoint.sh
+
+# Thiết lập script entrypoint để chạy khi container khởi động
+ENTRYPOINT ["/entrypoint.sh"]
