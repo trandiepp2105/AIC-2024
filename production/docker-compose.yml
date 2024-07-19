@@ -1,0 +1,57 @@
+version: "3.8"
+services:
+  database:
+    image: mysql:8.0
+    container_name: mysql
+    env_file:
+      - ./.env
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - localnet
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    networks:
+      - localnet
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: backend
+    env_file:
+      - ./.env
+    volumes:
+      - type: bind
+        source: ../backend
+        target: /backend
+      - type: bind
+        source: D:/AIC-2024-DATA/videos
+        target: ${VIDEOS_VOLUME_DIR}
+      - type: bind
+        source: D:/AIC-2024-DATA/frames
+        target: ${FRAMES_VOLUME_DIR}
+    environment:
+      DB_HOST: database
+    ports:
+      - "8000:8000"
+    restart: "no"
+    depends_on:
+      - database
+    networks:
+      - localnet
+
+networks:
+  localnet:
+    driver: bridge
+
+volumes:
+  mysql_data:

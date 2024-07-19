@@ -16,3 +16,12 @@ class FrameBase(SQLModel):
 
 class Frame(FrameBase, table=True):
     id: int = Field(default=None, primary_key=True)
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "path": self.path,
+            "frame_number": self.frame_number,
+            "objects_path": self.objects_path,
+            "video_id": self.video_id
+            # các cột khác
+        }
