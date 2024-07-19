@@ -1,8 +1,8 @@
 from scripts.faiss_search import FaissIndexSingleton
-from scripts.embedding_model import CLIP_Embedding
+from scripts.embedding_model import CLIPSingleton
 from configs import *
 
-embedding_model = CLIP_Embedding()
+embedding_model = CLIPSingleton()
 index_path = INDEX_FAISS
 faiss = FaissIndexSingleton(index_path, embedding_model, load=True)
 
