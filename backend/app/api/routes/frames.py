@@ -1,11 +1,11 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlmodel import col, delete, func, select
-from models import Frame, FrameBase
-from api.deps import SessionDep
+from app.models import Frame, FrameBase
+from app.api.deps import SessionDep
 from pydantic import BaseModel
 
-import crud
+from app import crud
 router = APIRouter()
 
 class FrameIDs(BaseModel):

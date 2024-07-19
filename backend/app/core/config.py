@@ -1,65 +1,37 @@
-import secrets
 import os
-from typing import Annotated, Any, Literal
 import urllib.parse
-from pydantic import (
-    AnyUrl,
-    BeforeValidator,
-    HttpUrl,
-    computed_field,
-    model_validator,
-)
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-DOTENV = os.path.join(BASE_DIR, '.env')
-def parse_cors(v: Any) -> list[str] | str:
-    if isinstance(v, str) and not v.startswith("["):
-        return [i.strip() for i in v.split(",")]
-    elif isinstance(v, (list, str)):
-        return v
-    raise ValueError(v)
-
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file='.env', env_ignore_empty=True, extra="ignore", env_file_encoding='utf-8'
-    )
-    API_STR: str = "/api"
-    SECRET_KEY: str = secrets.token_urlsafe(32)
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    DOMAIN: str = "localhost"
-    PORT: int = 8000
-    ENVIRONMENT: Literal["local", "staging", "production"] = "local"
-
-    BACKEND_CORS_ORIGINS: Annotated[
-        list[AnyUrl] | str, BeforeValidator(parse_cors)
-    ] = []
-
-    PROJECT_NAME: str
-    SENTRY_DSN: HttpUrl | None = None
-
-    MYSQL_SERVER: str
-    MYSQL_PORT: int
-    MYSQL_USER: str
-    MYSQL_PASSWORD: str
-    MYSQL_DB: str
-
-    VIDEOS_PATH: str
-    FRAMES_PATH: str
-    @property
-    def MYSQL_PASSWORD_ENCODE(self) -> str:
-        return urllib.parse.quote(self.MYSQL_PASSWORD)
-    @computed_field  # type: ignore[misc]
+# import secrets
+# from typing import Annotated, Any, Literal
+# from pydantic import computed_field
+# from pydantic_settings import BaseSettings
+import logging
+class Settings:
+    MYSQL_USER = os.getenv('MYSQL_USER')
+    MYSQL_ROOT_PASSWORD = os.getenv('MYSQL_ROOT_PASSWORD')
+    HOST = os.getenv('HOST')
+    MYSQL_PORT = os.getenv('MYSQL_PORT')
+    MYSQL_DATABASE = os.getenv('MYSQL_DATABASE')
+    PORT = os.getenv('PORT')
+    FRAMES_VOLUME_DIR = os.getenv('FRAMES_VOLUME_DIR')
+    VIDEOS_VOLUME_DIR = os.getenv('VIDEOS_VOLUME_DIR')
     @property
     def server_host(self) -> str:
-        # Use HTTPS for anything other than local development
-        if self.ENVIRONMENT == "local":
-            return f"http://{self.DOMAIN}:{self.PORT}"
-        return f"https://{self.DOMAIN}:{self.PORT}"
-
+        return f"http://{self.HOST}:{self.PORT}"
+    
+    @property
+    def BACKEND_CORS_ORIGINS(self) -> list[str]:
+        if self.HOST:
+            return [f"http://{self.HOST}", f"http://{self.HOST}/home"]
+        return []
+    
+    @property
+    def MYSQL_PASSWORD_ENCODE(self) -> str:
+        return urllib.parse.quote(self.MYSQL_ROOT_PASSWORD.encode("utf-8"))
+    
 
     @property
-    def SQLALCHEMY_DATABASE_URI(self) -> str:
-        return f"mysql+pymysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD_ENCODE}@{self.MYSQL_SERVER}:{self.MYSQL_PORT}/{self.MYSQL_DB}"
+    def SQLALCHEMY_DATABASE_URI(self):
+        return f"mysql+pymysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD_ENCODE}@{self.HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}?connect_timeout=60"
 
-settings = Settings(_env_file=DOTENV)
+settings = Settings()
+logging.error(f"ERROR: {settings.MYSQL_ROOT_PASSWORD}" )
