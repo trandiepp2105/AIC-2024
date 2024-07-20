@@ -7,7 +7,8 @@ FRAME_FOLDER = r'C:\AIC-2024-DATA\frames'
 INDEX_FAISS = r'C:\Users\hokha\OneDrive\Desktop\workplace\AIC-2024\backend\ai\faiss_index\index_demo.index'
 DIC_PATH = r'backend/ai/faiss_index/index_dic.json'
 CSV_PATH = r'backend/ai/faiss_index/index_csv.csv'
-PICKLE_PATH = r'backend/ai/faiss_index/index_pickle.pkl'
+KEYFRAME_FOLDER = r'C:\AIC-2024-DATA\keyframes'
+EMBEDDING_FOLDER = r'C:\AIC-2024-DATA\embeddings'
 
 THRESHOLD_SIMILARITY = 1.5e-2
 
