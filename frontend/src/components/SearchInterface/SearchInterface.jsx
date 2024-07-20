@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect } from "react";
+import Datetime from "react-datetime";
 import "./SearchInterface.scss";
 import ColorPicker from "../ColorPicker/ColorPicker";
 import { useHomeContext } from "../../pages/home-page/HomePage";
@@ -142,21 +143,8 @@ const SearchInterface = () => {
               onChange={handleChangeSearchData}
             />
           </div>
-          <div className="task-item">
-            <label htmlFor="location" className="label-task">
-              Location
-            </label>
-            <input
-              type="text"
-              name="location"
-              id="location"
-              className="task-content"
-              value={searchData.location}
-              onChange={handleChangeSearchData}
-            />
-          </div>
         </div>
-
+        {/* <Datetime />/ */}
         <div className="button-block">
           <button className="search-button" onClick={handleSubmit}>
             Search

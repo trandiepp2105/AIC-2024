@@ -10,7 +10,6 @@ const HomePage = () => {
     object: "",
     quantity: 0,
     time: "",
-    location: "",
     predicate: "",
     color: "",
   };

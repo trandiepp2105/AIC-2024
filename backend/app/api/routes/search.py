@@ -26,7 +26,6 @@ class SearchRequest(BaseModel):
     object: Optional[str] = None
     quantity: Optional[int] = None
     time: Optional[str] = None
-    location: Optional[str] = None
     predicate: Optional[str] = None
     color: Optional[str] = None
 
