@@ -13,7 +13,7 @@ def create_frame(session: Session, frame_create: FrameBase):
 
 def read_frames(
     session: Session,
-    limit: int = Query(10, ge=1, le=100),  # Giới hạn kết quả từ 1 đến 100
+    limit: int = Query(10, ge=1, le=10),  # Giới hạn kết quả từ 1 đến 100
     offset: int = Query(0, ge=0)  # Bắt đầu từ 0
 ):
     """
