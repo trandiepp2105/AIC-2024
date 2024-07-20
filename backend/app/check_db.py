@@ -1,14 +1,8 @@
-from pathlib import Path
-import sys
-current_dir = Path(__file__).resolve().parent
-app_dir = current_dir / '../app'
-sys.path.append(str(app_dir))
-
 from app.models import Frame
+from app.crud import read_frames
+from app.api.deps import get_session
 from sqlmodel import Session, select
 from app.core.database import engine
-
-print("RUN ai database")
 with Session(engine) as session:
     statement = select(Frame)
     results = session.exec(statement).all()
