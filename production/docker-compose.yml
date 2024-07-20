@@ -39,11 +39,18 @@ services:
       - type: bind
         source: ${FRAMES_PATH}
         target: ${FRAMES_VOLUME_DIR}
+      - type: bind
+        source: ${KEYFRAME_FOLDER}
+        target: ${KEYFRAME_VOLUME_DIR}
+      - type: bind
+        source: ${EMBEDDING_FOLDER}
+        target: ${EMBEDDING_VOLUME_DIR}
+      
     environment:
       DB_HOST: database
     ports:
       - "8000:8000"
-    restart: "no"
+    restart: "always" # Update restart policy if needed
     depends_on:
       - database
     networks:
@@ -91,16 +98,14 @@ services:
     ports:
       - "19530:19530"
     depends_on:
-      - "etcd"
-      - "minio"
+      - etcd
+      - minio
     networks:
       - localnet
 
 networks:
   localnet:
     driver: bridge
-  # default:
-  #   name: milvus
 
 volumes:
   mysql_data:
