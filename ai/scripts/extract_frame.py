@@ -5,7 +5,31 @@ import numpy as np
 from scripts.embedding_model import CLIP_Embedding
 import torch
 
-def extract_frame(video_path, output_dir, embedding_model, threshold = 1e-3):
+def extract_all_frames(video_path, output_dir, width=1024, height=1024):
+    video_name = os.path.basename(video_path).split('.')[0]
+    video_name = video_name.replace(' ', '_')
+    out_dir = os.path.join(output_dir, video_name)
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    cap = cv2.VideoCapture(video_path)
+    frame_count = 0
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        if frame_count % 7 != 0:
+            frame_count += 1
+            continue
+        frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).resize((width, height))
+        frame_path = os.path.join(out_dir, f'{frame_count}.jpg')
+        frame.save(frame_path)
+        frame_count += 1
+    cap.release()
+
+def similar_frame(frame1, frame2, frame3):
+    return np.linalg.norm(frame1-frame3) / frame1.shape[1]
+
+def extract_frame(video_path, output_dir, embedding_model, threshold = 1e-3, width=1024, height=1024):
     video_name = os.path.basename(video_path).split('.')[0]
     video_name = video_name.replace(' ', '_')
     out_dir = os.path.join(output_dir, video_name)
@@ -25,7 +49,7 @@ def extract_frame(video_path, output_dir, embedding_model, threshold = 1e-3):
             total_frame += 1
             continue
         idx += 1
-        frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).resize((width, height))
         v = embedding_model.get_image_embedding(frame).detach().cpu().numpy()
         if d_prev is None:
             # K[f'{idx}'] = v
@@ -48,5 +72,7 @@ def extract_frame(video_path, output_dir, embedding_model, threshold = 1e-3):
         total_frame += 1
     cap.release()
 
-def similar_frame(frame1, frame2, frame3):
-    return np.linalg.norm(frame1-frame3) / frame1.shape[1]
+def video2frame(video_folder, output_dir):
+    videos = wfile(video_folder, '.mp4')
+    for video in tqdm(videos):
+        extract_all_frames(video, output_dir)

@@ -5,7 +5,7 @@ import numpy as np
 from scripts.embedding_model import CLIP_Embedding
 import torch
 
-def extract_frame(video_path, output_dir, embedding_model, threshold = 1e-3):
+def extract_frame(video_path, output_dir, embedding_model, threshold = 1e-3, width=1024, height=1024):
     video_name = os.path.basename(video_path).split('.')[0]
     video_name = video_name.replace(' ', '_')
     out_dir = os.path.join(output_dir, video_name)
@@ -25,7 +25,7 @@ def extract_frame(video_path, output_dir, embedding_model, threshold = 1e-3):
             total_frame += 1
             continue
         idx += 1
-        frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).resize((width, height))
         v = embedding_model.get_image_embedding(frame).detach().cpu().numpy()
         if d_prev is None:
             # K[f'{idx}'] = v

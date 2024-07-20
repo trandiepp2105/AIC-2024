@@ -17,3 +17,11 @@ class CLIP_Embedding:
         with torch.no_grad():
             text_features = self.model.encode_text(text_input)
         return text_features
+    
+class CLIPSingelton:
+    _instance = None
+    def __new__(cls, model_name="ViT-L/14", device="cuda"):
+        if cls._instance is None:
+            cls._instance = CLIP_Embedding(model_name, device)
+        return cls._instance
+    
