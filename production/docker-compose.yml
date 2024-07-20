@@ -34,10 +34,10 @@ services:
         source: ../backend
         target: /backend
       - type: bind
-        source: D:/AIC-2024-DATA/videos
+        source: ${VIDEOS_PATH}
         target: ${VIDEOS_VOLUME_DIR}
       - type: bind
-        source: D:/AIC-2024-DATA/frames
+        source: ${FRAMES_PATH}
         target: ${FRAMES_VOLUME_DIR}
     environment:
       DB_HOST: database
