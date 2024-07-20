@@ -1,24 +1,9 @@
 from pymilvus import connections, Collection, DataType, FieldSchema, CollectionSchema, utility
 
 class MilvusSearch:
-    def __init__(self, host='localhost', port='19530', collection_name='embedding_collection'):
+    def __init__(self, host='127.0.0.1', port='19530', collection_name='search_collection'):
         self.client = connections.connect(host=host, port=port)
-        try:
-            self.collection = Collection(collection_name)
-        except:
-            search_schema = CollectionSchema([
-                FieldSchema(name="id", dtype=DataType.INT64, is_primary=True),
-                FieldSchema(name="path", dtype=DataType.STRING, description="path of the video"),
-                FieldSchema(name="vector_embedding", dtype=DataType.FLOAT_VECTOR, dim=768, description="embedding vector")
-            ], description="embedding collection")
-            schema = CollectionSchema([search_schema])
-            self.collection = Collection(name=collection_name, schema=schema)
-
-            index_param = {"index_type": "IVF_FLAT", "metric_type": "IP", "params": {"nlist": 2048}}
-            self.collection.create_index(field_name="vector_embedding", index_params=index_param)
-
-    def insert(self, data):
-        self.collection.insert(data)
+        self.collection = Collection(collection_name)
 
     def search(self, vectors, top_k=100):
         search_param = {
@@ -41,7 +26,7 @@ class MilvusSearch:
 class MilvusSingleton:
     _instance = None
 
-    def __new__(cls, host='localhost', port='19530', collection_name='embedding_collection'):
+    def __new__(cls, host='127.0.0.1', port='19530', collection_name='search_collection'):
         if cls._instance is None:
             cls._instance = MilvusSearch(host, port, collection_name)
         return cls._instance
