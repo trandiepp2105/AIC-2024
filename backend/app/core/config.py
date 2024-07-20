@@ -34,4 +34,4 @@ class Settings:
         return f"mysql+pymysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD_ENCODE}@{self.HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}?connect_timeout=60"
 
 settings = Settings()
-logging.error(f"ERROR: {settings.MYSQL_ROOT_PASSWORD}" )
+logging.error(f"{settings.MYSQL_ROOT_PASSWORD}" )
