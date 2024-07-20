@@ -18,3 +18,5 @@ fi
 
 # Chạy FastAPI
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+echo "run ai"
+python ./ai/database/database.py
