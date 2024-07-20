@@ -6,8 +6,8 @@ ftfy
 regex 
 tqdm
 git+https://github.com/openai/CLIP.git
-torch
-torchvision
+torch==2.3.1+cu118
+torchvision==0.18.1+cu118
 pandas
 matplotlib
 ultralytics
