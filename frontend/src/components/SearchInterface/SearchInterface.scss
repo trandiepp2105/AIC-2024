@@ -12,6 +12,7 @@
     &::-webkit-scrollbar {
       display: none; /* Ẩn thanh cuộn */
     }
+
     .wrapper-raw-text-area {
       width: 100%;
       .raw-text-area {
@@ -97,16 +98,9 @@
       }
     }
 
-    .wrapper-frame-selected {
+    .color-zone {
       box-sizing: border-box;
       width: 100%;
-      .title {
-        padding: 5px;
-        display: flex;
-        justify-content: center;
-        outline: none;
-        border: 1px solid black;
-      }
 
       .content {
         width: 100%;
@@ -114,11 +108,26 @@
         box-sizing: border-box;
         border: 1px dashed black;
         margin-top: 2px;
-        padding: 2px;
+        // padding: 2px;
         display: flex;
         justify-content: center;
         align-items: center;
         // border-top: none;
+        position: relative;
+        .image-data {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          &:focus-visible {
+            outline: none;
+            border: none;
+          }
+          img {
+            height: 100%;
+            object-fit: contain;
+          }
+        }
       }
     }
 

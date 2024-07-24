@@ -1,23 +1,82 @@
-import React, { useCallback, useEffect } from "react";
-import Datetime from "react-datetime";
+import React, { useCallback, useEffect, useState } from "react";
 import "./SearchInterface.scss";
 import ColorPicker from "../ColorPicker/ColorPicker";
 import { useHomeContext } from "../../pages/home-page/HomePage";
-
+import ColorZone from "../ColorZone/ColorZone";
+import Slider from "../Slider/Slider";
+// import { translate } from "@vitalets/google-translate-api";
+// import translate from "google-translate-api-x";
+// import translateText from "../../services/translate";
+import { translate } from "@vitalets/google-translate-api";
 const SearchInterface = () => {
+  const [currentColor, setCurrentColor] = useState("#4093e6");
+  const [pastedImage, setPastedImage] = useState(null);
   const { searchData, setSearchData, initialSearchData, handleSearchText } =
     useHomeContext();
 
-  const handleChangeSearchData = (e) => {
+  const handleChangeSearchData = async (e) => {
     const { name, value } = e.target;
+
+    if (name == "rawText") {
+      // try {
+      //   const { text } = await translate("Привет, мир! Как дела?", {
+      //     to: "en",
+      //   });
+      //   console.log(text);
+      // } catch (err) {
+      //   console.error(err);
+      // }
+    }
     setSearchData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: {
+        ...prevData[name],
+        value: value,
+      },
     }));
   };
 
+  const handleChangePriority = (event) => {
+    function convertText(text) {
+      // ex: text = raw-text-priority
+      // Chia chuỗi đầu vào thành mảng các phần tử bằng dấu gạch ngang
+      const parts = text.split("-");
+
+      // Lấy phần tử cuối cùng và loại bỏ từ 'priority'
+      const lastPart = parts.pop().replace("priority", "");
+
+      // Chuyển đổi các phần tử còn lại thành chữ hoa chữ cái đầu tiên và nối lại
+      const capitalizedParts = parts
+        .map((part, index) => {
+          // Chỉ chuyển đổi các phần tử không phải đầu tiên
+          if (index === 0) {
+            return part; // Giữ nguyên phần tử đầu tiên
+          }
+          return part.charAt(0).toUpperCase() + part.slice(1); // Chữ hoa phần tử khác
+        })
+        .join("");
+
+      // Ghép phần tử đã chuyển đổi với phần tử cuối cùng
+      return capitalizedParts + lastPart;
+    }
+
+    const { name, value } = event.target;
+    const field_name = convertText(name);
+    console.log(`Name: ${field_name}, Priority: ${value}`);
+    setSearchData((prevData) => {
+      const newSearchData = {
+        ...prevData,
+        [field_name]: {
+          ...prevData[field_name],
+          priority: parseInt(value),
+        },
+      };
+      return newSearchData;
+    });
+  };
   const resetSearchData = () => {
     setSearchData(initialSearchData);
+    setPastedImage(null);
   };
 
   // Memoize handleSubmit to avoid recreation on every render
@@ -30,6 +89,20 @@ const SearchInterface = () => {
     }
   }, [searchData, handleSearchText]);
 
+  // Handle paste event to get the image
+  const handlePaste = useCallback((event) => {
+    const items = event.clipboardData.items;
+    for (const item of items) {
+      if (item.type.indexOf("image") !== -1) {
+        const file = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setPastedImage(event.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  }, []);
   // Memoize handleKeyDown to avoid recreation on every render
   const handleKeyDown = useCallback(
     (e) => {
@@ -63,6 +136,10 @@ const SearchInterface = () => {
           handleSubmit();
         }
       }
+      if (e.ctrlKey && e.shiftKey && e.key === "X") {
+        e.preventDefault();
+        setPastedImage(null);
+      }
     },
     [handleSubmit, setSearchData]
   );
@@ -70,51 +147,48 @@ const SearchInterface = () => {
   useEffect(() => {
     // Thêm sự kiện keydown vào document khi component mount
     document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("paste", handlePaste);
 
     // Xóa sự kiện khi component unmount
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("paste", handlePaste);
     };
-  }, [handleKeyDown]); // Phụ thuộc vào handleKeyDown để đảm bảo sự kiện được cập nhật
+  }, [handleKeyDown, handlePaste]);
 
   return (
     <div className="search-interface">
       <div className="container">
         <div className="wrapper-raw-text-area">
+          <Slider
+            handleChangePriority={handleChangePriority}
+            name="raw-text-priority"
+          />
           <textarea
             name="rawText"
             id="raw-text"
             className="raw-text-area"
             placeholder="enter key search"
             onChange={handleChangeSearchData}
-            value={searchData.rawText}
+            value={searchData.rawText.value}
           />
         </div>
         <div className="wrapper-search-by-task-area">
+          <Slider
+            handleChangePriority={handleChangePriority}
+            name="objects-priority"
+          />
           <div className="task-item">
-            <label htmlFor="object" className="label-task">
-              Object
+            <label htmlFor="objects" className="label-task">
+              Objects
             </label>
             <input
               type="text"
-              name="object"
-              id="object"
+              name="objects"
+              id="objects"
               className="task-content"
               value={searchData.object}
-              onChange={handleChangeSearchData}
-            />
-          </div>
-          <div className="task-item">
-            <label htmlFor="predicate" className="label-task">
-              Predicate
-            </label>
-            <input
-              type="text"
-              name="predicate"
-              id="predicate"
-              className="task-content"
-              value={searchData.predicate}
-              onChange={handleChangeSearchData}
+              // onChange={handleChangeSearchData}
             />
           </div>
           <div className="task-item">
@@ -153,14 +227,36 @@ const SearchInterface = () => {
             Clear
           </button>
         </div>
-
-        <div className="wrapper-frame-selected" id="wrapper-frame-selected">
-          <div className="title">Frame select</div>
-          <div className="content"></div>
+        <Slider
+          handleChangePriority={handleChangePriority}
+          name="colors-priority"
+        />
+        <div className="color-zone" id="color-szone">
+          <div className="content">
+            <div
+              className="image-data"
+              contentEditable={true}
+              suppressContentEditableWarning={true}
+              onPaste={handlePaste}
+              tabIndex={0}
+            >
+              {pastedImage ? (
+                <img src={pastedImage} alt="Pasted content" />
+              ) : null}
+            </div>
+            <ColorZone
+              searchData={searchData}
+              setSearchData={setSearchData}
+              currentColor={currentColor}
+            />
+          </div>
         </div>
 
         <div className="wrapper-color-picker">
-          <ColorPicker />
+          <ColorPicker
+            currentColor={currentColor}
+            setCurrentColor={setCurrentColor}
+          />
         </div>
       </div>
     </div>

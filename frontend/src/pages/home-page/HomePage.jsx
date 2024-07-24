@@ -1,22 +1,56 @@
-import React, { useState, createContext, useContext } from "react";
+import React, { useState, createContext, useContext, useEffect } from "react";
 import "./HomePage.scss";
 import SearchInterface from "../../components/SearchInterface/SearchInterface";
 import BrowsingInterface from "../../components/BrowsingInterface/BrowsingInterface";
 import searchText from "../../services/search_text";
 const HomePageContext = createContext();
 const HomePage = () => {
+  const initialColorTable = {
+    row: 6,
+    column: 10,
+  };
+
+  initialColorTable.table = Array.from({ length: initialColorTable.row }, () =>
+    Array.from({ length: initialColorTable.column }, () => "#fff")
+  );
+
   const initialSearchData = {
-    rawText: "",
-    object: "",
-    quantity: 0,
-    time: "",
-    predicate: "",
-    color: "",
+    rawText: {
+      priority: 1,
+      value: "",
+    },
+    objects: {
+      priority: 1,
+      value: [
+        {
+          class: "car",
+          quantity: 0,
+        },
+        {
+          class: "duck",
+          quantity: 0,
+        },
+      ],
+    },
+    time: {
+      priority: 1,
+      value: "",
+    },
+    colors: {
+      priority: 1,
+      value: initialColorTable,
+    },
+    image: {
+      priority: 1,
+      value: null,
+    },
   };
   const [searchData, setSearchData] = useState(initialSearchData);
   const [searchResults, setSearchResults] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   const handleSearchText = async (searchData) => {
+    setSearchResults([]);
+    setLoading(true);
     console.log("search data: ", searchData);
     try {
       const results = await searchText(searchData);
@@ -25,6 +59,7 @@ const HomePage = () => {
       if (results && results.status >= 200 && results.status < 300) {
         console.log("Search results:", results);
         setSearchResults(results.data.result); // Gán dữ liệu trả về cho searchResults
+        setLoading(false);
       } else {
         console.log("No results or unsuccessful response");
         setSearchResults([]); // Gán giá trị rỗng nếu không có kết quả hoặc response không thành công
@@ -32,18 +67,26 @@ const HomePage = () => {
       console.log("rel: ", results);
     } catch (error) {
       console.error("Search failed:", error);
-      setSearchResults([]); // Gán giá trị rỗng trong trường hợp xảy ra lỗi
+      setSearchResults([]);
     }
   };
 
+  useEffect(() => {
+    console.log("search data from home: ", searchData);
+  }, [searchData]);
   return (
     <HomePageContext.Provider
-      value={{ searchData, setSearchData, initialSearchData, handleSearchText }}
+      value={{
+        searchData,
+        setSearchData,
+        initialSearchData,
+        handleSearchText,
+      }}
     >
       <div className="home-page">
         <div className="container">
           <SearchInterface />
-          <BrowsingInterface frameDisplay={searchResults} />
+          <BrowsingInterface frameDisplay={searchResults} loading={loading} />
         </div>
       </div>
     </HomePageContext.Provider>

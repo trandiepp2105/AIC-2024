@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { HuePicker, TwitterPicker } from "react-color";
 import "./ColorPicker.scss";
-const ColorPicker = () => {
+const ColorPicker = ({ currentColor, setCurrentColor }) => {
   const customColors = [
     "#000000",
     "#FFFFFF",
@@ -16,7 +16,6 @@ const ColorPicker = () => {
     "#F78DA7",
     "#9900EF",
   ];
-  const [currentColor, setCurrentColor] = useState("#4093e6");
   const handleOnChangeComplete = (color) => {
     setCurrentColor(color.hex);
   };

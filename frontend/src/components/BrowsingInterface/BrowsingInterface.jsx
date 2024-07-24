@@ -2,11 +2,13 @@ import React, { useState, useRef } from "react";
 import "./BrowsingInterface.scss";
 import VideoPlayer from "../VideoPlayer/VideoPlayer";
 import { useHomeContext } from "../../pages/home-page/HomePage";
-const BrowsingInterface = ({ frameDisplay }) => {
+import LoadingScreen from "react-loading-screen";
+const BrowsingInterface = ({ frameDisplay, loading = false }) => {
   const [frameSelected, setFrameItemSelected] = useState(null);
   const [groupedFrames, setGroupedFrames] = useState(new Set());
   const [playVideo, setPlayVideo] = useState(false);
   const videoPlayerRef = useRef(null);
+  const frameBrowsingAreaRef = useRef(null);
   const { searchData, setSearchData } = useHomeContext();
   const handleDoubleClickFrameItem = (index) => {
     setGroupedFrames((prevGroupedFrames) => {
@@ -50,20 +52,31 @@ const BrowsingInterface = ({ frameDisplay }) => {
   };
   return (
     <div className="browsing-interface">
-      <ul className="frame-browsing-area">
-        {frameDisplay.map((frame, index) => (
-          // console.log("frame:", frame)
-          <li
-            key={index}
-            className={`frame-item ${
-              frameSelected === index ? "frame-item-selected" : ""
-            } ${groupedFrames.has(index) ? "frame-item-group" : ""}`}
-            onClick={(event) => handleClickFrameItem(event, index)}
-            onDoubleClick={() => handleDoubleClickFrameItem(index)}
-          >
-            <img src={frame.path} alt="img-frame" className="img-frame" />
-          </li>
-        ))}
+      <ul className="frame-browsing-area" ref={frameBrowsingAreaRef}>
+        {loading ? (
+          <LoadingScreen
+            loading={true}
+            bgColor="#a8bdb9"
+            spinnerColor="#EC7700"
+            textColor="#EC7700"
+            // logoSrc="https://i.imgur.com/uPvFvZe.jpg"
+            text="Loading . . ."
+          />
+        ) : (
+          frameDisplay.map((frame, index) => (
+            // console.log("frame:", frame)
+            <li
+              key={index}
+              className={`frame-item ${
+                frameSelected === index ? "frame-item-selected" : ""
+              } ${groupedFrames.has(index) ? "frame-item-group" : ""}`}
+              onClick={(event) => handleClickFrameItem(event, index)}
+              onDoubleClick={() => handleDoubleClickFrameItem(index)}
+            >
+              <img src={frame.path} alt="img-frame" className="img-frame" />
+            </li>
+          ))
+        )}
       </ul>
       {playVideo ? (
         <div className="wrapper-video-player" ref={videoPlayerRef}>
