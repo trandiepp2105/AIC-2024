@@ -1,6 +1,6 @@
 # some libs
 from mmocr.apis import TextDetInferencer
-from mmocr.apis import TextRecInferencer
+from mmocr.utils.polygon_utils import poly2bbox
 import matplotlib.pyplot as plt
 from PIL import Image
 from vietocr.tool.predictor import Predictor
@@ -22,16 +22,15 @@ def extract_text_from_frame(frame_path,text_det,text_recog):
     det_res=text_det(image,progress_bar=False,save_vis=True,out_dir='text_detect_restult')
 
     #get bounding box
-    bouding_box=det_res['predictions'][0]['polygons']
+    polygons=det_res['predictions'][0]['polygons']
 
     # regconize text in each box
     i=0
-    for box in bouding_box:
+    for polygon in polygons:
         # find new bouding box which is rectangle
-        xs=box[0::2]
-        ys=box[1::2]
-        y_min,x_min,y_max,x_max=int(min(ys)),int(min(xs)),int(max(ys)),int(max(xs))
-
+        bbox=poly2bbox(polygon)
+        x_min,y_min,x_max,y_max=int(bbox[0]),int(bbox[1]),int(bbox[2]),int(bbox[3])
+        
         #padding bouding box
         padding=10 # amount paading each side
         y_min_padding=max(y_min-padding,0)
@@ -82,7 +81,7 @@ def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):
 
 
 def main():
-    OCR_from_folder('frames',det_model_name='DBNetpp',recog_model_name='vgg_seq2seq',output_dir='result')
+    OCR_from_folder('frames',det_model_name='textsnake_resnet50-oclip_fpn-unet_1200e_ctw1500',recog_model_name='vgg_seq2seq',output_dir='result')
 
 main()
      

@@ -8,14 +8,12 @@ import cv2
 import json
 from ultralytics import YOLO
 
-
-
 # Định nghĩa kích thước mới cho frame
 FRAME_WIDTH = 640
 FRAME_HEIGHT = 480
 
 # Đường dẫn đến thư mục chứa các ảnh
-folder_path = os.path.join(os.path.dirname(__file__),"frames")
+folder_path = os.path.join(os.path.dirname(__file__), "frames")
 
 # Tải mô hình YOLOv8
 models = {
@@ -26,17 +24,16 @@ models = {
 def resize_image(image, width, height):
     return cv2.resize(image, (width, height))
 
-
 # Hàm để chia ảnh thành các batch
 def divide_batches(folder_path, batch_size):
     transform = transforms.Compose([
-        transforms.Resize((FRAME_HEIGHT, FRAME_WIDTH)),  
-        transforms.ToTensor(),  
+        transforms.Resize((FRAME_HEIGHT, FRAME_WIDTH)),
+        transforms.ToTensor(),
     ])
-    
+
     # Lấy danh sách các file ảnh
     image_files = [f for f in os.listdir(folder_path) if f.endswith(('.jpg', '.png'))]
-    num_batches = (len(image_files) + batch_size - 1) // batch_size 
+    num_batches = (len(image_files) + batch_size - 1) // batch_size
     batches = []
 
     for i in range(num_batches):
@@ -58,7 +55,7 @@ def divide_batches(folder_path, batch_size):
 # Hàm để thực hiện phát hiện đối tượng trên từng batch ảnh
 def detect_objects(batch_tensor, model):
     tensor_list = [item[1] for item in batch_tensor]
-    results = model(torch.stack(tensor_list))  
+    results = model(torch.stack(tensor_list))
 
     detected_objects_batch = []
 
@@ -71,7 +68,7 @@ def detect_objects(batch_tensor, model):
 
         # Khởi tạo danh sách rỗng cho mỗi lớp
         for class_name in class_names:
-            detected_objects[model.names[class_name]] = []
+            detected_objects[class_name] = []
 
         # Xử lý từng kết quả phát hiện trong ảnh thứ i
         for box in result.boxes:
@@ -104,7 +101,7 @@ def process_frames(frame_dir, model, batch_size=16):
 
     for batch in batches:
         torch.cuda.empty_cache()
-       
+
         detected_objects_batch = detect_objects(batch, model)
 
         for (file_name, _), detections in zip(batch, detected_objects_batch):
@@ -131,8 +128,8 @@ def process_frames(frame_dir, model, batch_size=16):
     return all_detections
 
 root_directory = os.path.dirname(folder_path)
-output_directory = os.path.join(os.path.dirname(__file__),"Object-Detections")
-os.makedirs(output_directory, exist_ok=True)  
+output_directory = os.path.join(os.path.dirname(__file__), "Object-Detections")
+os.makedirs(output_directory, exist_ok=True)
 
 # Chỉ định kích thước batch
 batch_size = 32
@@ -141,35 +138,25 @@ batch_size = 32
 for subdir_name in os.listdir(folder_path):
     subdir_path = os.path.join(folder_path, subdir_name)
     if os.path.isdir(subdir_path):
+        # Tạo thư mục cho từng video trong thư mục output
+        video_output_directory = os.path.join(output_directory, subdir_name)
+        os.makedirs(video_output_directory, exist_ok=True)
+        
         for model_name, model in models.items():
-            detections_per_frame_all = []
-
             # Thực hiện object detection trên tất cả các hình ảnh trong thư mục con
             detections_per_frame = process_frames(subdir_path, model, batch_size)
             
             if detections_per_frame:
-                detections_per_frame_all.append(detections_per_frame)
+                for frame_id, frame_detections in detections_per_frame.items():
+                    # Tạo tên file JSON từ tên frame
+                    json_filename = f"{frame_id}.json"
+                    output_json = os.path.join(video_output_directory, json_filename)
 
-                # Tạo tên file JSON từ tên thư mục con và tên mô hình
-                json_filename = subdir_name+".json"
-                output_json = os.path.join(output_directory, json_filename)
-
-                # Ghi danh sách các đối tượng được phát hiện vào file JSON
-                with open(output_json, 'w') as f:
-                    json.dump(detections_per_frame, f, indent=4)
-
-                    print(f"Detections for {subdir_name} using {model_name} with batch size {batch_size}")
+                    # Ghi danh sách các đối tượng được phát hiện vào file JSON
+                    with open(output_json, 'w') as f:
+                        json.dump(frame_detections, f, indent=4)
+                        print(f"Saved detections for frame {frame_id} in {json_filename}")
 
         torch.cuda.empty_cache()
-        print(model)
 
 print("Object detection results have been saved to JSON files.")
-
-
-
-
-
-
-
-
-
