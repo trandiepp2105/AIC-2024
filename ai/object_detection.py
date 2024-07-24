@@ -68,7 +68,7 @@ def detect_objects(batch_tensor, model):
 
         # Khởi tạo danh sách rỗng cho mỗi lớp
         for class_name in class_names:
-            detected_objects[class_name] = []
+            detected_objects[model.names[class_name]] = []
 
         # Xử lý từng kết quả phát hiện trong ảnh thứ i
         for box in result.boxes:
