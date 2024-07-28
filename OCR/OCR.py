@@ -9,6 +9,167 @@ import cv2
 import os
 import json
 from tqdm import tqdm
+import numpy as np
+
+
+
+def do_padding(image,bbox,ratio):
+    '''
+    Padding to bbox with ratio
+
+    @image: numpy array of image
+    @bbox: the bouding box [x1,y1,x2,y2]
+    @ratio: the shorter_size*ratio will be the padding add each side
+
+    @return : the roi after padding
+    '''
+    (H,W)=image.shape[:2]
+    #calculate the width and the heigth
+    w=bbox[2]-bbox[0]
+    h=bbox[3]-bbox[1]
+
+    # the padding will add each side
+    d=min(w,h)
+
+    padding_amount=d*ratio
+
+    x1=max(int(bbox[0] - padding_amount),0)
+    y1=max(int(bbox[1] - padding_amount),0)
+    x2=min(int(bbox[2] + padding_amount),W)
+    y2=min(int(bbox[3] + padding_amount),H)
+
+    roi=image[y1:y2,x1:x2]
+
+    return roi
+
+def poly2point(polygon):
+    '''
+    Convert polygon into points (x,y)
+
+    @polygon: the polygon (x1, y1, x2, y2, ...)
+
+    @return: numpy array of points [(x1, y1), (x2, y2), ...]
+    '''
+    points=[]
+    for i in range(0,len(polygon),2):
+        points.append( (int(polygon[i]), int(polygon[i+1])) )
+    return points
+
+def get_orientation_angle_and_center(points): 
+    '''
+    Get the angle and the center to rotate from the polygon
+
+    @points : [ (x1,y1), (x2,y2) ,...] coordinate of polygon
+
+    @return : the angel and the center (x,y) to rotate
+    '''
+    points = np.array(points, dtype=np.float32)
+    
+    # Calculate the minimum bounding rectangle
+    rect = cv2.minAreaRect(points)
+    angle = rect[-1]
+    center=rect[0]
+    
+    # Adjust the angle to get the correct orientation
+    if angle < -45:
+        angle = 90 + angle
+    
+    return angle, center
+
+
+def rotate_image(image,center,angle):
+    '''
+    Rotate the image and return the matrix rotation
+
+    @image: array of the image
+    @center: (x,y) the center
+    @angle : float the angle need to rotate
+
+    @return: the array rotated image and the rotation matrix 
+    '''
+    (h, w) = image.shape[:2]
+    rotation_matrix = cv2.getRotationMatrix2D(center, angle, scale=1.0)
+    rotated_image = cv2.warpAffine(image, rotation_matrix, (w, h))
+    return rotated_image,rotation_matrix
+
+
+def deskew_polygon(image,polygon):
+    '''
+    Deskew the polygon and get the rois
+
+    @image: the image contains polygon
+
+    @polygon: the polygon (x1, y1, x2, y2, ...)
+
+    @padding: the padding adding to each size of roi
+
+    @return: list of two rois the deskewed one and the flipped one 
+    '''
+    # get the points from the polygon
+    points=poly2point(polygon)
+
+    y_max=max(points, key= lambda point: point[1])[1]
+    y_min=min(points, key= lambda point: point[1])[1]
+
+    x1=max([i[0] for i in points if i[1]==y_max])
+    x2=max([i[0] for i in points if i[1]==y_min])
+
+    clockwise=x1 > x2
+
+    # get the angle and the center
+    angle,center = get_orientation_angle_and_center(points)
+
+    rois=[]
+
+    #if the angle is too small, we dont deskew it
+    if abs(angle) > 5 :
+        # rotate the image
+        if clockwise == False:
+            angle=angle-90
+        rotated_image,rotation_matrix=rotate_image(image,center,angle)
+
+        # get the new polygon
+        deskewed_points=cv2.transform(np.array([points]), rotation_matrix)[0]
+    else:
+        deskewed_points=np.array(points).astype(int)
+        rotated_image=image
+
+    #get the roi from the  points of polygon
+    x_min=int(min(deskewed_points[:,0]))
+    y_min=int(min(deskewed_points[:,1]))
+    x_max=int(max(deskewed_points[:,0]))
+    y_max=int(max(deskewed_points[:,1]))
+
+    bbox=[x_min, y_min, x_max, y_max]
+    #get the roi
+    roi=do_padding(rotated_image,bbox,0.05)
+
+    rois.append(roi)
+
+    # this is use for rotate the roi i*90 degree
+    # to rotate it until 180 use range(1,4)
+    for i in range(1,4):
+        # do again with 180
+        # rotate the image
+        rotated_image,rotation_matrix=rotate_image(image,center,angle+i*90)
+
+        # get the new polygon
+        deskewed_points=cv2.transform(np.array([points]), rotation_matrix)[0]
+
+    #get the bouding box
+        x_min=int(min(deskewed_points[:,0]))
+        y_min=int(min(deskewed_points[:,1]))
+        x_max=int(max(deskewed_points[:,0]))
+        y_max=int(max(deskewed_points[:,1]))
+
+        bbox=[x_min, y_min, x_max, y_max]
+
+        roi=do_padding(image = rotated_image, bbox = bbox, ratio=0.05)
+       
+
+        rois.append(roi)
+
+    return rois
 
 def extract_text_from_frame(frame_path,text_det,text_recog):
     filename, ext = os.path.splitext(os.path.basename(frame_path))
@@ -27,28 +188,26 @@ def extract_text_from_frame(frame_path,text_det,text_recog):
     # regconize text in each box
     i=0
     for polygon in polygons:
-        # find new bouding box which is rectangle
-        bbox=poly2bbox(polygon)
-        x_min,y_min,x_max,y_max=int(bbox[0]),int(bbox[1]),int(bbox[2]),int(bbox[3])
-        
-        #padding bouding box
-        padding=10 # amount paading each side
-        y_min_padding=max(y_min-padding,0)
-        y_max_padding=min(y_max+padding,h)
-        x_min_padding=max(x_min-padding,0)
-        x_max_padding=min(x_max+padding,w)
+        # get the rois after deskewed and padding
+        # rois include the roi after deskew and the rotate 180 of it
+        rois=deskew_polygon(image=image,polygon=polygon)
+        #resize the image height=175, width=400
 
-        # find roi
-        roi=image[y_min_padding:y_max_padding,x_min_padding:x_max_padding]
-
-        # gray scale
-        gray_roi=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
-
-        text,score=text_recog.predict(Image.fromarray(gray_roi),return_prob=True)
-        text_recog_result={"text":text,"score":score}
-        result[filename].append(text_recog_result)
-        cv2.imwrite(f'text_detect_restult/{filename}_{i}.jpg',gray_roi)
-        i+=1
+        text_recog_result=[]
+        for roi in rois:
+            gray_roi=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
+            
+            if roi.shape[1]/roi.shape[0]>6 or roi.shape[1]/roi.shape[0] < 2:
+                target_size=(400,int(roi.shape[0]*400/roi.shape[1]))
+            else:
+                target_size=(400,175)
+            resize_roi=cv2.resize(gray_roi,target_size,interpolation=cv2.INTER_LINEAR)
+            text,score=text_recog.predict(Image.fromarray(resize_roi),return_prob=True)
+            text_recog_result.append({"text":text,"score":score})
+        text_recog_result.sort(key= lambda x: x["score"])
+        the_best_result=text_recog_result[-1]
+        if the_best_result["score"] > 0.699:
+            result[filename].append(the_best_result)
     return result
 
 def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):
