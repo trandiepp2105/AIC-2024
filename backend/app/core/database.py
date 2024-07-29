@@ -24,6 +24,10 @@ def load_data_from_folders(frames_folder: str, videos_folder: str):
     frame_url_base = f"{settings.server_host}/frames"
     
     with Session(engine) as session:
+
+        session.exec(Frame.__table__.delete())
+        session.commit()
+
         # Load video data
         for video_name in os.listdir(frames_folder):
             video_file = f"{video_name}.mp4"

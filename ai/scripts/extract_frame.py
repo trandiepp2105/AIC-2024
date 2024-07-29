@@ -5,74 +5,10 @@ import numpy as np
 import pickle
 from tqdm import tqdm
 
-def extract_all_frames(video_path, output_dir, width=1024, height=1024):
-    video_name = os.path.basename(video_path).split('.')[0]
-    video_name = video_name.replace(' ', '_')
-    out_dir = os.path.join(output_dir, video_name)
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-    cap = cv2.VideoCapture(video_path)
-    frame_count = 0
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        if frame_count % 7 != 0:
-            frame_count += 1
-            continue
-        frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).resize((width, height))
-        frame_path = os.path.join(out_dir, f'{frame_count}.jpg')
-        frame.save(frame_path)
-        frame_count += 1
-    cap.release()
+def similar_cosine(v1, v2):
+    return np.dot(v1, v2)
 
-def similar_frame(frame1, frame2, frame3):
-    return np.linalg.norm(frame1-frame3) / frame1.shape[0]
-
-def extract_frame(video_path, output_dir, embedding_model, threshold = 1e-3, width=1024, height=1024):
-    video_name = os.path.basename(video_path).split('.')[0]
-    video_name = video_name.replace(' ', '_')
-    out_dir = os.path.join(output_dir, video_name)
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-    cap = cv2.VideoCapture(video_path)
-    frame_count = 0
-    d_prev = None
-    v_prev = None
-    total_frame = 0
-    idx = 0
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        if total_frame % 7 != 0:
-            total_frame += 1
-            continue
-        idx += 1
-        frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).resize((width, height))
-        v = embedding_model.get_image_embedding(frame).detach().cpu().numpy()
-        if d_prev is None:
-            # K[f'{idx}'] = v
-            d_prev = v
-            v_prev = v
-            frame_path = os.path.join(out_dir, f'{total_frame}.jpg')
-            frame.save(frame_path)
-            frame_count += 1
-        else:
-            # print(similar_frame(v, v_prev, d_prev))
-            # print(threshold)
-            if similar_frame(v, v_prev, d_prev) > threshold:
-                # K[f'{idx}'] = v
-                d_prev = v
-                frame_path = os.path.join(out_dir, f'{total_frame}.jpg')
-                frame.save(frame_path)
-                frame_count += 1
-        
-        v_prev = v
-        total_frame += 1
-    cap.release()
-
-def save_keyframes_and_embedding(video_path, keyframe_folder, embedding_folder, embedding_model, threshold=1e-3, width=1024, height=1024):  
+def save_keyframes_and_embedding(video_path, keyframe_folder, embedding_folder, embedding_model, threshold=1e-3, width=1024, height=1024, batch_size=256): 
     video_name = os.path.basename(video_path).split('.')[0]
     video_name = video_name.replace(' ', '_')
     keyframe_out_dir = os.path.join(keyframe_folder, video_name)
@@ -84,34 +20,47 @@ def save_keyframes_and_embedding(video_path, keyframe_folder, embedding_folder, 
     cap = cv2.VideoCapture(video_path)
     keyframes = []
     d_prev = None
-    v_prev = None
+    batchs = []
+    ids = []
     total_frame = 0
-    idx = 0
     while True:
         ret, frame = cap.read()
         if not ret:
+            if len(batchs) > 0:
+                v = embedding_model.get_images_embedding(batchs).detach().cpu().numpy().astype(np.float32)
+                for i in range(len(v)):
+                    if similar_cosine(v[i], d_prev) > threshold:
+                        d_prev = v[i]
+                        embedding_path = os.path.join(embedding_out_dir, f'{ids[i]}')
+                        np.save(embedding_path, v[i])
+                        keyframes.append(ids[i])
+                batchs = []
+                ids = []
             break
         if total_frame % 7 != 0:
             total_frame += 1
             continue
-        idx += 1
         frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).resize((width, height))
-        v = embedding_model.get_image_embedding(frame).detach().cpu().numpy()
+        # v = embedding_model.get_image_embedding(frame).detach().cpu().numpy()
         if d_prev is None:
+            v = embedding_model.get_image_embedding(frame).detach().cpu().numpy().astype(np.float32)
             d_prev = v
-            v_prev = v
-            embedding_path = os.path.join(embedding_out_dir, f'{total_frame}.pickle')
-            with open(embedding_path, 'wb') as f:
-                pickle.dump(v.tolist(), f)
-            keyframes.append(total_frame)
+            embedding_path = os.path.join(embedding_out_dir, f'{total_frame}')
+            np.save(embedding_path, v)
+            keyframes.append(total_frame)   
         else:
-            if similar_frame(v, v_prev, d_prev) > threshold:
-                d_prev = v
-                embedding_path = os.path.join(embedding_out_dir, f'{total_frame}.pickle')
-                with open(embedding_path, 'wb') as f:
-                    pickle.dump(v.tolist(), f)
-                keyframes.append(total_frame)
-        v_prev = v
+            batchs.append(frame)
+            ids.append(total_frame)
+            if len(batchs) == batch_size:
+                v = embedding_model.get_images_embedding(batchs).detach().cpu().numpy().astype(np.float32)
+                for i in range(len(v)):
+                    if similar_cosine(v[i], d_prev) < 0.9:
+                        d_prev = v[i]
+                        embedding_path = os.path.join(embedding_out_dir, f'{ids[i]}')
+                        np.save(embedding_path, v[i])
+                        keyframes.append(ids[i])
+                batchs = []
+                ids = []
         total_frame += 1
     keyframes_path = os.path.join(keyframe_out_dir, f'{video_name}.pickle')
     with open(keyframes_path, 'wb') as f:

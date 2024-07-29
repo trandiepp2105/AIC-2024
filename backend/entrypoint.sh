@@ -4,7 +4,7 @@
 MIGRATION_FLAG="/backend/app/migrations/.migration_flag"
 
 echo "Running backend"
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
 # Kiểm tra xem file đánh dấu đã tồn tại hay chưa
 if [ ! -f "$MIGRATION_FLAG" ]; then
   # Nếu không tồn tại, chạy các lệnh ban đầu
@@ -20,9 +20,10 @@ if [ ! -f "$MIGRATION_FLAG" ]; then
 
   # Tạo file đánh dấu để ghi nhớ lần chạy đầu tiên
   touch "$MIGRATION_FLAG"
+
+  sleep 15
 fi
 
-sleep 15
 echo "Running AI script"
 
 # Chạy script liên quan đến AI

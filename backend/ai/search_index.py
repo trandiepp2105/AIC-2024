@@ -1,17 +1,55 @@
-from scripts.faiss_search import FaissIndexSingleton
-from scripts.embedding_model import CLIPSingleton
-from configs import *
+from ai.scripts.milvus_seach import MilvusSingleton, MilvusSearch
+from ai.scripts.embedding_model import CLIPSingleton, CLIP_Embedding
+from ai.configs import *
 
+import torch
+print(torch.cuda.is_available())
+
+print("RUN ai search_index")
 embedding_model = CLIPSingleton()
-index_path = INDEX_FAISS
-faiss = FaissIndexSingleton(index_path, embedding_model, load=True)
+print("DONE ai search_index")
+search = MilvusSearch(collection_name='search_collection')
+print("DONE ai search_index")
 
-def image_search(image, top_k=100):
-    indexs, distances = faiss.search_image(image, top_k)
-    return indexs, distances
+def image_search(image, top_k=500):
+    embedding = embedding_model.get_image_embedding(image).cpu().numpy().tolist()
+    res = search.search([embedding], top_k)
+    return res   
 
-def search_text(text, top_k=100):
-    distances, indexs = faiss.search_text(text, top_k)
-    for i in range(len(indexs[0])):
-        indexs[0][i] = int(indexs[0][i])+1
-    return indexs, distances
+def search_text(text, top_k=500):
+    text_embedding = embedding_model.get_text_embedding(text).cpu().numpy().tolist()
+    res = search.search([text_embedding], top_k)
+    return res
+
+def search_index(search_input, top_k=500):
+    description_embedding = embedding_model.get_text_embedding(search_input['text']['value']).cpu().numpy()
+    objects_vector = {int(k):v for k,v in search_input['objects']['value'].items()}
+    image_embedding = embedding_model.get_image_embedding(search_input['similar_image']['value']).cpu().numpy()
+    objects_vector[100] = 1.0
+    vectors = {
+        'description_vector': [description_embedding],
+        'objects': [objects_vector],
+        'time': None,
+        'similar_image_vector': [image_embedding],
+        'ocr_embedding': None,
+        'audio_embedding': None,
+    }
+    fields = {
+        'description_vector': 'frame_embedding',
+        'objects': 'object_detection',
+        'time': 'time_vector',
+        'similar_image_vector': 'frame_embedding',
+        'ocr_embedding': 'ocr_embedding',
+        'audio_embedding': 'audio_embedding'
+    }
+    total_priority = sum([v['priority'] for k,v in search_input.items()])
+    priorities = {
+        'description_vector': search_input['text']['priority']/total_priority,
+        'objects': search_input['objects']['priority']/total_priority,
+        'time': search_input['time']['priority']/total_priority,
+        'similar_image_vector': search_input['similar_image']['priority']/total_priority,
+        'ocr_embedding': search_input['ocr']['priority']/total_priority,
+        'audio_embedding': search_input['audio']['priority']/total_priority
+    }
+    res = search.search_hybrid(vectors, fields, priorities, top_k)
+    return res

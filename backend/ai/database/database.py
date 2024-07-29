@@ -11,16 +11,20 @@ from app.core.database import engine
 from ai.configs import *
 from pymilvus import connections, Collection, FieldSchema, CollectionSchema, DataType, utility
 import pickle
+import numpy as np
+import json
 
 table = None
 
 print("RUN ai database")
-with Session(engine) as session:
-    statement = select(Frame)
-    table = session.exec(statement).all()
 
-for i in table:
-    print(i.id, i.path)
+try:
+    with Session(engine) as session:
+        statement = select(Frame)
+        table = session.exec(statement).all()
+except Exception as e:
+    print(f"Error: {e}")
+
 
 connections.connect("default", host="milvus-standalone", port="19530")
 
@@ -30,10 +34,15 @@ if collection_name in utility.list_collections():
     collection = Collection(collection_name)
     collection.drop()
 
-collection = Collection(collection_name, schema=CollectionSchema([
-    FieldSchema("id", DataType.INT64, is_primary=True),
-    FieldSchema("embedding", DataType.FLOAT_VECTOR, dim=768)
-]))
+fields = [
+    FieldSchema(name="idx", dtype=DataType.INT64, is_primary=True),
+    FieldSchema(name="frame_embedding", dtype=DataType.FLOAT_VECTOR, dim=768),
+    FieldSchema(name="object_detection", dtype=DataType.SPARSE_FLOAT_VECTOR)
+]
+
+schema = CollectionSchema(fields=fields)
+
+collection = Collection(collection_name, schema=schema)
 
 index_params = {
     "metric_type": "IP",
@@ -41,7 +50,14 @@ index_params = {
     "params": {"nlist": 1024}
 }
 
-collection.create_index(field_name="embedding", index_params=index_params)
+object_detection_index_params = {
+    "metric_type": "IP",
+    "index_type": "SPARSE_INVERTED_INDEX",
+    "params": {}
+}
+
+collection.create_index(field_name="frame_embedding", index_params=index_params)
+collection.create_index(field_name="object_detection", index_params=object_detection_index_params)
 
 def get_video_frame(path):
     paths = path.split('/')
@@ -50,14 +66,31 @@ def get_video_frame(path):
     return video_id, frame_id
 
 def get_embedding(video_id, frame_id):
-    embedding_path = f"{EMBEDDING_FOLDER}/{video_id}/{frame_id}.pickle"
-    with open(embedding_path, 'rb') as f:
-        return pickle.load(f)
+    embedding_path = f"{EMBEDDING_FOLDER}/{video_id}/{frame_id}.npy"
+    embedding = np.load(embedding_path)
+    return embedding
+
+def get_object_detection(video_id, frame_id):
+    object_detection_path = f"{OBJECTS_FOLDER}/{video_id}/{frame_id}.json"
+    with open(object_detection_path, 'r') as f:
+        object_detection = json.load(f)
+    vector_object = {int(k):float(v) for k,v in object_detection['vector_count'].items()}
+    return vector_object
+    
+entity = [[],[],[]]
 
 for row in table:
     video_id, frame_id = get_video_frame(row.path)
     embedding = get_embedding(video_id, frame_id)
-    collection.insert([{"id": row.id, "embedding": embedding}])
+    object_detection = get_object_detection(video_id, frame_id)
+    entity[0].append(int(row.id))
+    entity[1].append(embedding)
+    entity[2].append(object_detection)
 
-connections.close()
+collection.insert(entity)
+
+collection.load()
+
+connections.disconnect("default")
+
 print("END ai database")

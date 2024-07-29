@@ -17,7 +17,7 @@ import logging
 # sys.path.append(scripts_path)
 
 # # Import tuyệt đối
-# from ai.search_index import search_text, image_search
+from ai.search_index import search_text, image_search
 
 router = APIRouter()
 
@@ -42,9 +42,9 @@ def text_search(
     # return frames
     
     if search_request.raw_text:
-        # index, text_search_rel = search_text("a girl use a phone", 10)
-        # frame_ids = index[0]
-        frame_ids = [2,1,3,7,9, 10, 11,12, 13, 15, 17, 19]
+        index = search_text(search_request.raw_text,500)
+        frame_ids = index
+        # frame_ids = [2,1,3,7,9, 10, 11,12, 13, 15, 17, 19]
         frames = crud.get_mul_frames(session, frame_ids)
         # Convert each frame to a dictionary
         frames_data = [frame.to_dict() for frame in frames]

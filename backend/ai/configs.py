@@ -9,6 +9,7 @@ DIC_PATH = r'backend/ai/faiss_index/index_dic.json'
 CSV_PATH = r'backend/ai/faiss_index/index_csv.csv'
 KEYFRAME_FOLDER = '/data/keyframes'
 EMBEDDING_FOLDER = '/data/embeddings'
+OBJECTS_FOLDER = '/data/objects'
 
 THRESHOLD_SIMILARITY = 1.5e-2
 

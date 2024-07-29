@@ -1,27 +1,28 @@
-import clip
 import torch
+import open_clip
 
 class CLIP_Embedding:
-    def __init__(self, model_name="ViT-L/14", device="cuda"):
-        self.device = device
-        self.model, self.preprocess = clip.load(model_name, device=device)
+    def __init__(self, model_name="ViT-L-14", pretrained="commonpool_xl_laion_s13b_b90k", device="cuda"):
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.model, _, self.preprocess = open_clip.create_model_and_transforms(model_name, pretrained=pretrained, device='cuda')
+        self.tokenizer = open_clip.get_tokenizer('ViT-L-14')
 
     def get_image_embedding(self, image):
         image_input = self.preprocess(image).unsqueeze(0).to(self.device)
-        with torch.no_grad():
+        with torch.no_grad(), torch.cuda.amp.autocast():
             image_features = self.model.encode_image(image_input)
-        return image_features
+        return image_features[0]/image_features[0].norm()
 
     def get_text_embedding(self, text):
-        text_input = clip.tokenize(text).to(self.device)
-        with torch.no_grad():
+        text_input = self.tokenizer(text).to(self.device)
+        with torch.no_grad(), torch.cuda.amp.autocast():
             text_features = self.model.encode_text(text_input)
-        return text_features
+        return text_features[0]/text_features[0].norm()
     
 class CLIPSingleton:
     _instance = None
-
-    def __new__(cls, model_name="ViT-L/14", device="cuda"):
+    def __new__(cls, model_name="ViT-L-14", pretrained="commonpool_xl_laion_s13b_b90k", device="cuda"):
         if cls._instance is None:
-            cls._instance = CLIP_Embedding(model_name, device)
+            cls._instance = CLIP_Embedding(model_name, pretrained, device)
         return cls._instance
+    

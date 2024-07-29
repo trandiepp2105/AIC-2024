@@ -7,18 +7,7 @@ from PIL import Image
 import cv2
 import json
 from ultralytics import YOLO
-
-# Định nghĩa kích thước mới cho frame
-FRAME_WIDTH = 640
-FRAME_HEIGHT = 480
-
-# Đường dẫn đến thư mục chứa các ảnh
-folder_path = os.path.join(os.path.dirname(__file__), "frames")
-
-# Tải mô hình YOLOv8
-models = {
-    'yolov8n': YOLO('yolov8n.pt')
-}
+from configs import FRAME_WIDTH, FRAME_HEIGHT
 
 # Hàm để thay đổi kích thước ảnh
 def resize_image(image, width, height):
@@ -127,36 +116,49 @@ def process_frames(frame_dir, model, batch_size=16):
 
     return all_detections
 
-root_directory = os.path.dirname(folder_path)
-output_directory = os.path.join(os.path.dirname(__file__), "Object-Detections")
-os.makedirs(output_directory, exist_ok=True)
+def generate_output_json(folder_path, output_directory, models = 'yolov8m.pt', batch_size = 64):
+    models = {
+        'models': YOLO(models)
+    }   
+    os.makedirs(output_directory, exist_ok=True)
+    # Duyệt qua từng thư mục con trong thư mục gốc
+    for subdir_name in os.listdir(folder_path):
+        subdir_path = os.path.join(folder_path, subdir_name)
+        if os.path.isdir(subdir_path):
+            # Tạo thư mục cho từng video trong thư mục output
+            video_output_directory = os.path.join(output_directory, subdir_name)
+            os.makedirs(video_output_directory, exist_ok=True)
 
-# Chỉ định kích thước batch
-batch_size = 32
+            for model_name, model in models.items():
+                # Thực hiện object detection trên tất cả các hình ảnh trong thư mục con
+                detections_per_frame = process_frames(subdir_path, model, batch_size)
 
-# Duyệt qua từng thư mục con trong thư mục gốc
-for subdir_name in os.listdir(folder_path):
-    subdir_path = os.path.join(folder_path, subdir_name)
-    if os.path.isdir(subdir_path):
-        # Tạo thư mục cho từng video trong thư mục output
-        video_output_directory = os.path.join(output_directory, subdir_name)
-        os.makedirs(video_output_directory, exist_ok=True)
-        
-        for model_name, model in models.items():
-            # Thực hiện object detection trên tất cả các hình ảnh trong thư mục con
-            detections_per_frame = process_frames(subdir_path, model, batch_size)
-            
-            if detections_per_frame:
-                for frame_id, frame_detections in detections_per_frame.items():
-                    # Tạo tên file JSON từ tên frame
-                    json_filename = f"{frame_id}.json"
-                    output_json = os.path.join(video_output_directory, json_filename)
+                if detections_per_frame:
+                    for frame_id, frame_detections in detections_per_frame.items():
+                        # Tạo tên file JSON từ tên frame
+                        json_filename = f"{frame_id}.json"
+                        output_json = os.path.join(video_output_directory, json_filename)
+                        vector_count = {i:ob['count'] for i,ob in enumerate(frame_detections.values()) if ob['count'] > 0}
+                        vector_count = {100:1.0}
+                        detection = {
+                            'info' : frame_detections,
+                            'vector_count' : vector_count
+                        }
+                        # Ghi danh sách các đối tượng được phát hiện vào file JSON
+                        with open(output_json, 'w') as f:
+                            json.dump(detection, f, indent=4)
+                            # print(f"Saved detections for frame {frame_id} in {json_filename}")
 
-                    # Ghi danh sách các đối tượng được phát hiện vào file JSON
-                    with open(output_json, 'w') as f:
-                        json.dump(frame_detections, f, indent=4)
-                        print(f"Saved detections for frame {frame_id} in {json_filename}")
+                torch.cuda.empty_cache()
 
-        torch.cuda.empty_cache()
+    # print("Object detection results have been saved to JSON files.")
 
-print("Object detection results have been saved to JSON files.")
+# if __name__ == '__main__':
+#     # Thư mục chứa các frame cần phát hiện đối tượng
+#     frame_folder = r'C:\AIC-2024-DATA\frames'
+
+#     # Thư mục chứa kết quả phát hiện đối tượng
+#     output_directory = r'C:\AIC-2024-DATA\objects'
+
+#     # Thực hiện phát hiện đối tượng và lưu kết quả vào các file JSON
+#     generate_output_json(frame_folder, output_directory, 'yolov8m.pt', 64)
