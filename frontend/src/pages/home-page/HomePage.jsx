@@ -35,6 +35,14 @@ const HomePage = () => {
       priority: 10,
       value: null,
     },
+    ocr: {
+      priority: 10,
+      value: "",
+    },
+    speech: {
+      priority: 10,
+      value: "",
+    },
   };
   const [searchData, setSearchData] = useState(initialSearchData);
   const [searchResults, setSearchResults] = useState([]);

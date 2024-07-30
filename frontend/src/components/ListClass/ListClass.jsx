@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./ListClass.scss";
-
 function swap(array, index1, index2) {
   let temp = array[index1];
   array[index1] = array[index2];
   array[index2] = temp;
 }
 
-const ListClass = ({ classes, setClasses, setSearchData, width = "" }) => {
+const ListClass = ({
+  classes,
+  setClasses,
+  setSearchData,
+  classesIndexDisplay,
+  setClassesIndexDisplay,
+  width = "",
+}) => {
   const [activeClass, setActiveClass] = useState(null);
   const inputRefs = useRef([]);
-  const firstInputRef = useRef(null);
   const [isAddIncQuantity, setIsAddIncQuantity] = useState(false);
   const handleItemClick = (index) => {
     setActiveClass(index);
@@ -31,9 +36,6 @@ const ListClass = ({ classes, setClasses, setSearchData, width = "" }) => {
 
   useEffect(() => {
     if (isAddIncQuantity === true) {
-      // if (firstInputRef.current) {
-      //   firstInputRef.current.focus();
-      // }
       if (inputRefs.current[0]) {
         inputRefs.current[0].focus();
       }
@@ -41,23 +43,28 @@ const ListClass = ({ classes, setClasses, setSearchData, width = "" }) => {
     }
   }, [isAddIncQuantity]);
 
-  const handleChangeQuantity = (index, event) => {
+  const handleChangeQuantity = (indexClasses, index, event) => {
     setIsAddIncQuantity(false);
     const newQuantity = event.target.value;
     const quantityInt = parseInt(newQuantity, 10);
     setClasses((prevClasses) => {
       const newClasses = [...prevClasses];
-      newClasses[index].quantity = newQuantity;
+      newClasses[indexClasses].quantity = newQuantity;
 
       if (!isNaN(quantityInt) && quantityInt > 0) {
-        const temp = newClasses[index];
-        for (let i = index; i > 0; i--) {
+        const temp = newClasses[indexClasses];
+        for (let i = indexClasses; i > 0; i--) {
           newClasses[i] = newClasses[i - 1];
         }
         newClasses[0] = temp;
         setIsAddIncQuantity(true);
+        setClassesIndexDisplay((preIndex) => {
+          const newIndex = [...preIndex];
+          newIndex[index] = 0;
+          return newIndex;
+        });
       } else {
-        for (let i = index; i < newClasses.length - 1; i++) {
+        for (let i = indexClasses; i < newClasses.length - 1; i++) {
           const nextQuantity = parseInt(newClasses[i + 1].quantity, 10);
           if (isNaN(nextQuantity) || nextQuantity <= 0) {
             break;
@@ -74,7 +81,7 @@ const ListClass = ({ classes, setClasses, setSearchData, width = "" }) => {
 
     setSearchData((prevData) => {
       const existingObjectIndex = prevData.objects.value.findIndex(
-        (obj) => obj.className === classes[index].className
+        (obj) => obj.className === classes[indexClasses].className
       );
 
       if (existingObjectIndex !== -1) {
@@ -109,7 +116,10 @@ const ListClass = ({ classes, setClasses, setSearchData, width = "" }) => {
               ...prevData.objects,
               value: [
                 ...prevData.objects.value,
-                { className: classes[index].className, quantity: quantityInt },
+                {
+                  className: classes[indexClasses].className,
+                  quantity: quantityInt,
+                },
               ],
             },
           };
@@ -122,7 +132,35 @@ const ListClass = ({ classes, setClasses, setSearchData, width = "" }) => {
 
   return (
     <ul className="list-class" style={{ width }}>
-      {classes.map((value, index) => (
+      {classesIndexDisplay.map((indexClasses, index) => (
+        <li
+          key={`class-item-${indexClasses}`}
+          className={`class-item ${
+            activeClass === indexClasses ? "active-item" : ""
+          } ${
+            !isNaN(parseInt(classes[indexClasses].quantity, 10)) &&
+            parseInt(classes[indexClasses].quantity, 10) > 0
+              ? "chosen-item"
+              : null
+          }`}
+          onClick={() => handleItemClick(indexClasses)}
+        >
+          <p>{classes[indexClasses].className}</p>
+          <input
+            type="number"
+            min={0}
+            name={`class-item-quantity-${indexClasses}`}
+            className="class-item-quantity"
+            value={classes[indexClasses].quantity}
+            onChange={(event) =>
+              handleChangeQuantity(indexClasses, index, event)
+            }
+            // ref={index === 0 ? firstInputRef : null}
+            ref={(el) => (inputRefs.current[index] = el)}
+          />
+        </li>
+      ))}
+      {/* {classes.map((value, index) => (
         <li
           key={`class-item-${index}`}
           className={`class-item ${
@@ -147,7 +185,7 @@ const ListClass = ({ classes, setClasses, setSearchData, width = "" }) => {
             ref={(el) => (inputRefs.current[index] = el)}
           />
         </li>
-      ))}
+      ))} */}
     </ul>
   );
 };

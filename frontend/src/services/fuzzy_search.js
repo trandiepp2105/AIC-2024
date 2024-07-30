@@ -2,10 +2,13 @@ function fuzzySearch(query, data) {
   // Chuyển query về chữ thường để không phân biệt chữ hoa chữ thường
   const lowerCaseQuery = query.toLowerCase();
 
-  return data.filter((item) => {
-    const lowerCaseItem = item.toLowerCase();
-    return fuzzyMatch(lowerCaseQuery, lowerCaseItem);
-  });
+  return data.reduce((matchingIndices, item, index) => {
+    const lowerCaseItem = item.className.toLowerCase();
+    if (fuzzyMatch(lowerCaseQuery, lowerCaseItem)) {
+      matchingIndices.push(index);
+    }
+    return matchingIndices;
+  }, []);
 }
 
 function fuzzyMatch(query, item) {

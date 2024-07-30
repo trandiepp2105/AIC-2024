@@ -6,32 +6,39 @@ import ColorZone from "../ColorZone/ColorZone";
 import Slider from "../Slider/Slider";
 import ListClass from "../ListClass/ListClass";
 import getClasses from "../../services/get_classes";
+import fuzzySearch from "../../services/fuzzy_search";
 
 const SearchInterface = () => {
   const [classes, setClasses] = useState([]);
-  const [initClasses, setInitClasses] = useState([]);
-
+  const [classesIndexDisplay, setClassesIndexDisplay] = useState([]);
   useEffect(() => {
     const fetchClasses = async () => {
       try {
         const response = await getClasses();
         if (response && response.status >= 200 && response.status < 300) {
           setClasses(response.data.result);
-          setInitClasses(response.data.result);
+          setClassesIndexDisplay(
+            Array.from({ length: response.data.result.length }, (_, i) => i)
+          );
+
           console.log("Initial Classes Set:", response.data.result);
         } else {
           setClasses([]);
-          setInitClasses([]);
+          setClassesIndexDisplay([]);
         }
       } catch (error) {
         console.error("Failed to fetch classes:", error);
         setClasses([]);
-        setInitClasses([]);
+        setClassesIndexDisplay([]);
       }
     };
 
     fetchClasses();
   }, []);
+
+  useEffect(() => {
+    console.log("index: ", classesIndexDisplay);
+  }, [classesIndexDisplay]);
   const [currentColor, setCurrentColor] = useState("#4093e6");
   const [pastedImage, setPastedImage] = useState(null);
   const [activeImageOption, setActiveImageOption] = useState("colors");
@@ -83,16 +90,13 @@ const SearchInterface = () => {
         const response = await getClasses();
         if (response && response.status >= 200 && response.status < 300) {
           setClasses(response.data.result);
-          setInitClasses(response.data.result);
           console.log("Initial Classes Set:", response.data.result);
         } else {
           setClasses([]);
-          setInitClasses([]);
         }
       } catch (error) {
         console.error("Failed to fetch classes:", error);
         setClasses([]);
-        setInitClasses([]);
       }
     };
 
@@ -208,10 +212,19 @@ const SearchInterface = () => {
       objectsInputRef.current &&
       !objectsInputRef.current.contains(event.target) &&
       listClassRef.current &&
-      !listClassRef.current.contains(event.target)
+      !listClassRef.current.contains(event.target) &&
+      document.activeElement !== objectsInputRef.current // Kiểm tra con trỏ nhập
     ) {
       setShowListClass(false);
     }
+  };
+
+  const handleSearchObjects = (event) => {
+    event.preventDefault();
+    const value = event.target.value;
+    const filterIndex = fuzzySearch(value, classes);
+    setClassesIndexDisplay(filterIndex);
+    console.log("filter: ", filterIndex);
   };
 
   useEffect(() => {
@@ -261,6 +274,7 @@ const SearchInterface = () => {
               className="task-content"
               onFocus={() => setShowListClass(true)}
               ref={objectsInputRef}
+              onChange={handleSearchObjects}
             />
             {showListClass && (
               <div className="wrapper-list-class" ref={listClassRef}>
@@ -269,6 +283,8 @@ const SearchInterface = () => {
                   setClasses={setClasses}
                   searchData={searchData}
                   setSearchData={setSearchData}
+                  classesIndexDisplay={classesIndexDisplay}
+                  setClassesIndexDisplay={setClassesIndexDisplay}
                 />
               </div>
             )}
@@ -288,6 +304,42 @@ const SearchInterface = () => {
               id="time"
               className="task-content"
               value={searchData.time.value}
+              onChange={handleChangeSearchData}
+            />
+          </div>
+          <Slider
+            handleChangePriority={handleChangePriority}
+            name="ocr-priority"
+            initValue={searchData.ocr.priority}
+          />
+          <div className="task-item">
+            <label htmlFor="ocr" className="label-task">
+              OCR
+            </label>
+            <input
+              type="text"
+              name="ocr"
+              id="ocr"
+              className="task-content"
+              value={searchData.ocr.value}
+              onChange={handleChangeSearchData}
+            />
+          </div>
+          <Slider
+            handleChangePriority={handleChangePriority}
+            name="speech-priority"
+            initValue={searchData.speech.priority}
+          />
+          <div className="task-item">
+            <label htmlFor="speech" className="label-task">
+              Speech
+            </label>
+            <input
+              type="text"
+              name="speech"
+              id="speech"
+              className="task-content"
+              value={searchData.speech.value}
               onChange={handleChangeSearchData}
             />
           </div>
