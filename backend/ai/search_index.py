@@ -2,14 +2,8 @@ from ai.scripts.milvus_seach import MilvusSingleton, MilvusSearch
 from ai.scripts.embedding_model import CLIPSingleton, CLIP_Embedding
 from ai.configs import *
 
-import torch
-print(torch.cuda.is_available())
-
-print("RUN ai search_index")
 embedding_model = CLIPSingleton()
-print("DONE ai search_index")
 search = MilvusSearch(collection_name='search_collection')
-print("DONE ai search_index")
 
 def image_search(image, top_k=500):
     embedding = embedding_model.get_image_embedding(image).cpu().numpy().tolist()

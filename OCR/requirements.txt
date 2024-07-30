@@ -2,4 +2,6 @@
 -r requirements/optional.txt
 -r requirements/runtime.txt
 -r requirements/tests.txt
+-r requirements/mminstall.txt
+-r requirements/readthedocs.txt
 vietocr==0.3.13
