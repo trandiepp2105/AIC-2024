@@ -5,9 +5,11 @@ FROM python:3.10
 
 WORKDIR /backend
 
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir -r requirements.txt
+    pip install -r requirements.txt
 
 COPY ./ ./
 
