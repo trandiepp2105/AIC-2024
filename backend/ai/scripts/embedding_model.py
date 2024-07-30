@@ -1,4 +1,5 @@
 import torch
+import torch.amp
 import open_clip
 
 class CLIP_Embedding:
@@ -9,13 +10,13 @@ class CLIP_Embedding:
 
     def get_image_embedding(self, image):
         image_input = self.preprocess(image).unsqueeze(0).to(self.device)
-        with torch.no_grad(), torch.cuda.amp.autocast():
+        with torch.no_grad(), torch.amp.autocast('cuda'):
             image_features = self.model.encode_image(image_input)
         return image_features[0]/image_features[0].norm()
 
     def get_text_embedding(self, text):
         text_input = self.tokenizer(text).to(self.device)
-        with torch.no_grad(), torch.cuda.amp.autocast():
+        with torch.no_grad(), torch.amp.autocast('cuda'):
             text_features = self.model.encode_text(text_input)
         return text_features[0]/text_features[0].norm()
     

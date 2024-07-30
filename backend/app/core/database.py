@@ -25,6 +25,11 @@ def load_data_from_folders(frames_folder: str, videos_folder: str):
     
     with Session(engine) as session:
         # Load video data
+
+        session.exec(Frame.__table__.delete())
+        session.exec(Video.__table__.delete())
+        session.commit()
+
         for video_name in os.listdir(frames_folder):
             video_file = f"{video_name}.mp4"
             video_path = os.path.join(videos_folder, video_file)

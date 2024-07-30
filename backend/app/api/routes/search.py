@@ -17,19 +17,47 @@ import logging
 # sys.path.append(scripts_path)
 
 # # Import tuyệt đối
-from ai.search_index import search_text, image_search
+from ai.search_index import search_index
 
 router = APIRouter()
 
-class SearchRequest(BaseModel):
-    raw_text: Optional[str] = Field(None, alias='rawText')
-    object: Optional[str] = None
-    quantity: Optional[int] = None
-    time: Optional[str] = None
-    location: Optional[str] = None
-    predicate: Optional[str] = None
-    color: Optional[str] = None
+class RawTextModel(BaseModel):
+    priority: int
+    value: Optional[str] = None
 
+class ObjectModel(BaseModel):
+    class_name: str = Field(None, alias='className')
+    quantity: Optional[int]
+    class Config:
+        populate_by_name = True
+
+class ObjectsModel(BaseModel):
+    priority: int
+    value: Optional[List[ObjectModel]] = None
+
+class TimeModel(BaseModel):
+    priority: int
+    value: Optional[str] = None
+
+class ColorTableModel(BaseModel):
+    column: int
+    row: int
+    table: List[List[str]]
+
+class ColorsModel(BaseModel):
+    priority: int
+    value: ColorTableModel
+
+class ImageModel(BaseModel):
+    priority: int
+    value: Optional[str] = None
+
+class SearchRequest(BaseModel):
+    raw_text: RawTextModel = Field(alias='rawText')
+    objects: ObjectsModel
+    time: TimeModel
+    colors: ColorsModel
+    image: ImageModel
     class Config:
         populate_by_name = True
 
@@ -38,24 +66,38 @@ def text_search(
     search_request: SearchRequest,
     session: SessionDep,
 ):
-
-    # return frames
-    
-    if search_request.raw_text:
-        index = search_text(search_request.raw_text,500)
-        frame_ids = index
-        # frame_ids = [2,1,3,7,9, 10, 11,12, 13, 15, 17, 19]
-        frames = crud.get_mul_frames(session, frame_ids)
-        # Convert each frame to a dictionary
-        frames_data = [frame.to_dict() for frame in frames]
+    # if search_request.raw_text.value:
+    #     print("raw text: ")
+    #     print(search_request.raw_text.value)
+    #     # index, text_search_rel = search_text("a girl use a phone", 10)
+    #     # frame_ids = index[0]
+    #     frame_ids = [2,1,3,7,9, 10, 11,12, 13, 15, 17, 19, 100]
+    #     frames = crud.get_mul_frames(session, frame_ids)
+    #     # Convert each frame to a dictionary
+    #     frames_data = [frame.to_dict() for frame in frames]
         
+    #     result = {
+    #         "message": "Search text successfully",
+    #         "result": frames_data
+    #     }
+
+    #     return JSONResponse(content=result, status_code=status.HTTP_200_OK)
+    try:
+        #model_dump
+        search_info = search_request.model_dump()
+        frames_ids = search_index(search_info, 100)
+
+        frames = crud.get_mul_frames(session, frames_ids)
+
+        frames_data = [frame.to_dict() for frame in frames]
+
         result = {
             "message": "Search text successfully",
             "result": frames_data
         }
 
         return JSONResponse(content=result, status_code=status.HTTP_200_OK)
-    else:
+    except:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid search data")
 # @router.post("/image")
 # def image_search()

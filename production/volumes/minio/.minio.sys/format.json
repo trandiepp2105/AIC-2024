@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-{"version":"1","format":"fs","id":"008ebb93-d397-4336-b46e-051c5256ef2e","fs":{"version":"2"}}
-=======
-{"version":"1","format":"fs","id":"5e2d5d3c-490c-47bb-9fd8-37d3db6cdabb","fs":{"version":"2"}}
->>>>>>> 47060122abe3290e1b6cbfd5adb075c89586e01e
+{"version":"1","format":"xl-single","id":"5a8461c2-2c1d-4950-8317-a30d932e51cf","xl":{"version":"3","this":"0463d1d6-7f2e-4837-8209-5dddd84a2292","sets":[["0463d1d6-7f2e-4837-8209-5dddd84a2292"]],"distributionAlgo":"SIPMOD+PARITY"}}
