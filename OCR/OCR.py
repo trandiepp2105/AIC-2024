@@ -9,6 +9,8 @@ import cv2
 import os
 import json
 from tqdm import tqdm
+<<<<<<< HEAD
+=======
 import numpy as np
 
 
@@ -170,6 +172,7 @@ def deskew_polygon(image,polygon):
         rois.append(roi)
 
     return rois
+>>>>>>> 47060122abe3290e1b6cbfd5adb075c89586e01e
 
 def extract_text_from_frame(frame_path,text_det,text_recog):
     filename, ext = os.path.splitext(os.path.basename(frame_path))
@@ -188,6 +191,30 @@ def extract_text_from_frame(frame_path,text_det,text_recog):
     # regconize text in each box
     i=0
     for polygon in polygons:
+<<<<<<< HEAD
+        # find new bouding box which is rectangle
+        bbox=poly2bbox(polygon)
+        x_min,y_min,x_max,y_max=int(bbox[0]),int(bbox[1]),int(bbox[2]),int(bbox[3])
+        
+        #padding bouding box
+        padding=10 # amount paading each side
+        y_min_padding=max(y_min-padding,0)
+        y_max_padding=min(y_max+padding,h)
+        x_min_padding=max(x_min-padding,0)
+        x_max_padding=min(x_max+padding,w)
+
+        # find roi
+        roi=image[y_min_padding:y_max_padding,x_min_padding:x_max_padding]
+
+        # gray scale
+        gray_roi=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
+
+        text,score=text_recog.predict(Image.fromarray(gray_roi),return_prob=True)
+        text_recog_result={"text":text,"score":score}
+        result[filename].append(text_recog_result)
+        cv2.imwrite(f'text_detect_restult/{filename}_{i}.jpg',gray_roi)
+        i+=1
+=======
         # get the rois after deskewed and padding
         # rois include the roi after deskew and the rotate 180 of it
         rois=deskew_polygon(image=image,polygon=polygon)
@@ -208,6 +235,7 @@ def extract_text_from_frame(frame_path,text_det,text_recog):
         the_best_result=text_recog_result[-1]
         if the_best_result["score"] > 0.699:
             result[filename].append(the_best_result)
+>>>>>>> 47060122abe3290e1b6cbfd5adb075c89586e01e
     return result
 
 def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):

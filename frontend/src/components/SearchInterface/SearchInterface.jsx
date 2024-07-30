@@ -1,9 +1,45 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import "./SearchInterface.scss";
 import ColorPicker from "../ColorPicker/ColorPicker";
 import { useHomeContext } from "../../pages/home-page/HomePage";
+import ColorZone from "../ColorZone/ColorZone";
+import Slider from "../Slider/Slider";
+import ListClass from "../ListClass/ListClass";
+import getClasses from "../../services/get_classes";
 
 const SearchInterface = () => {
+  const [classes, setClasses] = useState([]);
+  const [initClasses, setInitClasses] = useState([]);
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await getClasses();
+        if (response && response.status >= 200 && response.status < 300) {
+          setClasses(response.data.result);
+          setInitClasses(response.data.result);
+          console.log("Initial Classes Set:", response.data.result);
+        } else {
+          setClasses([]);
+          setInitClasses([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch classes:", error);
+        setClasses([]);
+        setInitClasses([]);
+      }
+    };
+
+    fetchClasses();
+  }, []);
+  const [currentColor, setCurrentColor] = useState("#4093e6");
+  const [pastedImage, setPastedImage] = useState(null);
+  const [activeImageOption, setActiveImageOption] = useState("colors");
+  const [showListClass, setShowListClass] = useState(false);
+  const objectsInputRef = useRef(null);
+  const listClassRef = useRef(null);
+  const imageDataRef = useRef(null);
+
   const { searchData, setSearchData, initialSearchData, handleSearchText } =
     useHomeContext();
 
@@ -11,28 +47,123 @@ const SearchInterface = () => {
     const { name, value } = e.target;
     setSearchData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: {
+        ...prevData[name],
+        value: value,
+      },
     }));
+  };
+
+  const handleChangePriority = (event) => {
+    const { name, value } = event.target;
+    const fieldName = convertText(name);
+    setSearchData((prevData) => ({
+      ...prevData,
+      [fieldName]: {
+        ...prevData[fieldName],
+        priority: parseInt(value),
+      },
+    }));
+  };
+
+  const convertText = (text) => {
+    const parts = text.split("-");
+    const lastPart = parts.pop().replace("priority", "");
+    const capitalizedParts = parts.map((part, index) =>
+      index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)
+    );
+    return capitalizedParts.join("") + lastPart;
   };
 
   const resetSearchData = () => {
     setSearchData(initialSearchData);
+    setPastedImage(null);
+    const fetchClasses = async () => {
+      try {
+        const response = await getClasses();
+        if (response && response.status >= 200 && response.status < 300) {
+          setClasses(response.data.result);
+          setInitClasses(response.data.result);
+          console.log("Initial Classes Set:", response.data.result);
+        } else {
+          setClasses([]);
+          setInitClasses([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch classes:", error);
+        setClasses([]);
+        setInitClasses([]);
+      }
+    };
+
+    fetchClasses();
   };
 
-  // Memoize handleSubmit to avoid recreation on every render
   const handleSubmit = useCallback(async () => {
     await handleSearchText(searchData);
-    // Làm mất focus khỏi tất cả các trường nhập liệu
-    const focusedElement = document.activeElement;
-    if (focusedElement) {
-      focusedElement.blur();
-    }
+    document.activeElement?.blur();
   }, [searchData, handleSearchText]);
 
-  // Memoize handleKeyDown to avoid recreation on every render
+  const handlePaste = useCallback(
+    (event) => {
+      const items = event.clipboardData.items;
+      for (const item of items) {
+        if (item.type.indexOf("image") !== -1) {
+          const file = item.getAsFile();
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const base64Image = event.target.result;
+            setPastedImage(base64Image);
+            setSearchData((prevData) => ({
+              ...prevData,
+              image: {
+                ...prevData.image,
+                value: base64Image,
+              },
+            }));
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    },
+    [setSearchData]
+  );
+
+  const handleDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+      const srcDrop = event.dataTransfer.getData("text/plain");
+      setPastedImage(srcDrop);
+      fetch(srcDrop)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const base64Image = event.target.result;
+
+            setSearchData((prevData) => ({
+              ...prevData,
+              image: {
+                ...prevData.image,
+                value: base64Image,
+              },
+            }));
+          };
+          reader.readAsDataURL(blob);
+        })
+        .catch((error) => {
+          console.error("Error fetching image:", error);
+        });
+    },
+    [setSearchData]
+  );
+
+  const handleDragOver = useCallback((event) => {
+    event.preventDefault();
+  }, []);
+
   const handleKeyDown = useCallback(
     (e) => {
-      // Kiểm tra phần tử hiện tại có focus hay không
       const focusedElement = document.activeElement;
       const isInputOrTextarea =
         focusedElement.tagName === "TEXTAREA" ||
@@ -40,7 +171,6 @@ const SearchInterface = () => {
 
       if (e.key === "Enter") {
         if (e.shiftKey) {
-          // Nếu Shift + Enter thì xuống dòng
           e.preventDefault();
           if (focusedElement.tagName === "TEXTAREA") {
             const cursorPosition = focusedElement.selectionStart;
@@ -57,78 +187,97 @@ const SearchInterface = () => {
             }));
           }
         } else if (isInputOrTextarea) {
-          // Nếu chỉ Enter thì submit
           e.preventDefault();
           handleSubmit();
         }
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === "X") {
+        e.preventDefault();
+        setPastedImage(null);
       }
     },
     [handleSubmit, setSearchData]
   );
 
-  useEffect(() => {
-    // Thêm sự kiện keydown vào document khi component mount
-    document.addEventListener("keydown", handleKeyDown);
+  const handleChangeActiveImageOption = (option) => {
+    setActiveImageOption(option);
+  };
 
-    // Xóa sự kiện khi component unmount
+  const handleOutsideClick = (event) => {
+    if (
+      objectsInputRef.current &&
+      !objectsInputRef.current.contains(event.target) &&
+      listClassRef.current &&
+      !listClassRef.current.contains(event.target)
+    ) {
+      setShowListClass(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("paste", handlePaste);
+    document.addEventListener("click", handleOutsideClick);
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("paste", handlePaste);
+      document.removeEventListener("click", handleOutsideClick);
     };
-  }, [handleKeyDown]); // Phụ thuộc vào handleKeyDown để đảm bảo sự kiện được cập nhật
+  }, [handleKeyDown, handlePaste]);
 
   return (
     <div className="search-interface">
       <div className="container">
         <div className="wrapper-raw-text-area">
+          <Slider
+            handleChangePriority={handleChangePriority}
+            name="raw-text-priority"
+            initValue={searchData.rawText.priority}
+          />
           <textarea
             name="rawText"
             id="raw-text"
             className="raw-text-area"
             placeholder="enter key search"
             onChange={handleChangeSearchData}
-            value={searchData.rawText}
+            value={searchData.rawText.value}
           />
         </div>
         <div className="wrapper-search-by-task-area">
+          <Slider
+            handleChangePriority={handleChangePriority}
+            name="objects-priority"
+            initValue={searchData.objects.priority}
+          />
           <div className="task-item">
-            <label htmlFor="object" className="label-task">
-              Object
+            <label htmlFor="objects" className="label-task">
+              Objects
             </label>
             <input
               type="text"
-              name="object"
-              id="object"
+              name="objects"
+              id="objects"
               className="task-content"
-              value={searchData.object}
-              onChange={handleChangeSearchData}
+              onFocus={() => setShowListClass(true)}
+              ref={objectsInputRef}
             />
+            {showListClass && (
+              <div className="wrapper-list-class" ref={listClassRef}>
+                <ListClass
+                  classes={classes}
+                  setClasses={setClasses}
+                  searchData={searchData}
+                  setSearchData={setSearchData}
+                />
+              </div>
+            )}
           </div>
-          <div className="task-item">
-            <label htmlFor="predicate" className="label-task">
-              Predicate
-            </label>
-            <input
-              type="text"
-              name="predicate"
-              id="predicate"
-              className="task-content"
-              value={searchData.predicate}
-              onChange={handleChangeSearchData}
-            />
-          </div>
-          <div className="task-item">
-            <label htmlFor="quantity" className="label-task">
-              Quantity
-            </label>
-            <input
-              type="text"
-              name="quantity"
-              id="quantity"
-              className="task-content"
-              value={searchData.quantity}
-              onChange={handleChangeSearchData}
-            />
-          </div>
+          <Slider
+            handleChangePriority={handleChangePriority}
+            name="time-priority"
+            initValue={searchData.time.priority}
+          />
           <div className="task-item">
             <label htmlFor="time" className="label-task">
               Time
@@ -138,25 +287,11 @@ const SearchInterface = () => {
               name="time"
               id="time"
               className="task-content"
-              value={searchData.time}
-              onChange={handleChangeSearchData}
-            />
-          </div>
-          <div className="task-item">
-            <label htmlFor="location" className="label-task">
-              Location
-            </label>
-            <input
-              type="text"
-              name="location"
-              id="location"
-              className="task-content"
-              value={searchData.location}
+              value={searchData.time.value}
               onChange={handleChangeSearchData}
             />
           </div>
         </div>
-
         <div className="button-block">
           <button className="search-button" onClick={handleSubmit}>
             Search
@@ -165,14 +300,58 @@ const SearchInterface = () => {
             Clear
           </button>
         </div>
-
-        <div className="wrapper-frame-selected" id="wrapper-frame-selected">
-          <div className="title">Frame select</div>
-          <div className="content"></div>
+        <Slider
+          handleChangePriority={handleChangePriority}
+          name={`${activeImageOption}-priority`}
+          initValue={searchData[activeImageOption].priority}
+        />
+        <div className="color-zone" id="color-zone">
+          <div className="color-zone-option">
+            <button
+              className={`colors-table-opt ${
+                activeImageOption === "colors" ? "active-opt" : ""
+              }`}
+              onClick={() => handleChangeActiveImageOption("colors")}
+            >
+              COLORS PICK
+            </button>
+            <button
+              className={`image-opt ${
+                activeImageOption === "image" ? "active-opt" : ""
+              }`}
+              onClick={() => handleChangeActiveImageOption("image")}
+            >
+              IMAGE
+            </button>
+          </div>
+          <div className="content">
+            {activeImageOption === "image" ? (
+              <div
+                className="image-data"
+                // contentEditable={true}
+                // suppressContentEditableWarning={true}
+                onPaste={handlePaste}
+                ref={imageDataRef}
+                // tabIndex={0}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                {pastedImage && <img src={pastedImage} alt="Pasted content" />}
+              </div>
+            ) : (
+              <ColorZone
+                searchData={searchData}
+                setSearchData={setSearchData}
+                currentColor={currentColor}
+              />
+            )}
+          </div>
         </div>
-
         <div className="wrapper-color-picker">
-          <ColorPicker />
+          <ColorPicker
+            currentColor={currentColor}
+            setCurrentColor={setCurrentColor}
+          />
         </div>
       </div>
     </div>

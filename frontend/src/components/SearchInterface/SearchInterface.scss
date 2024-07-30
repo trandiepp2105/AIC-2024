@@ -33,15 +33,27 @@
         display: flex;
         align-items: center;
         margin-bottom: 3px;
+        position: relative;
+
+        .wrapper-list-class {
+          width: 75%;
+          position: absolute;
+          top: 25px;
+          right: 0;
+          z-index: 10000;
+          height: 300px;
+          background-color: white;
+          border-radius: 4px;
+        }
         .label-task {
-          width: 30%;
+          width: 25%;
           margin-right: 2px;
           font-size: 13px;
           font-weight: bold;
         }
 
         .task-content {
-          width: 70%;
+          width: 75%;
           outline: none;
           padding: 2px;
           padding-top: 0;
@@ -97,28 +109,55 @@
       }
     }
 
-    .wrapper-frame-selected {
+    .color-zone {
       box-sizing: border-box;
       width: 100%;
-      .title {
-        padding: 5px;
-        display: flex;
-        justify-content: center;
+
+      button {
         outline: none;
         border: 1px solid black;
+        cursor: pointer;
+        padding: 2px 5px;
+        border-bottom: none;
+        font-weight: bold;
+        border-top-left-radius: 2px;
+        border-top-right-radius: 2px;
+        font-size: 10px;
+        background-color: rgb(203, 197, 197);
+        &:hover {
+          filter: brightness(90%);
+        }
       }
 
+      button.active-opt {
+        padding-top: 3px;
+        font-size: 12px;
+        background-color: #fff2d7;
+        color: #f98866;
+      }
       .content {
         width: 100%;
         aspect-ratio: 16 / 9;
         box-sizing: border-box;
         border: 1px dashed black;
-        margin-top: 2px;
-        padding: 2px;
         display: flex;
         justify-content: center;
         align-items: center;
-        // border-top: none;
+        position: relative;
+        .image-data {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          &:focus-visible {
+            outline: none;
+            border: none;
+          }
+          img {
+            height: 100%;
+            object-fit: contain;
+          }
+        }
       }
     }
 

@@ -13,6 +13,8 @@ sqlmodel
 pyjwt
 passlib
 alembic
+pandas
+aiofiles
 cryptography
 
 numpy<2

@@ -4,7 +4,6 @@
 MIGRATION_FLAG="/backend/app/migrations/.migration_flag"
 
 echo "Running backend"
-
 # Kiểm tra xem file đánh dấu đã tồn tại hay chưa
 if [ ! -f "$MIGRATION_FLAG" ]; then
   # Nếu không tồn tại, chạy các lệnh ban đầu
