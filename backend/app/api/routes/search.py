@@ -17,7 +17,7 @@ import logging
 # sys.path.append(scripts_path)
 
 # # Import tuyệt đối
-# from ai.search_index import search_text, image_search
+from ai.search_index import search_index
 
 router = APIRouter()
 
@@ -28,6 +28,7 @@ class OCRModel(BaseModel):
 class SpeechModel(BaseModel):
     priority: int
     value: Optional[str] = None
+
 class RawTextModel(BaseModel):
     priority: int
     value: Optional[str] = None
@@ -75,23 +76,38 @@ def text_search(
     search_request: SearchRequest,
     session: SessionDep,
 ):
-    if search_request.raw_text.value:
-        print("raw text: ")
-        print(search_request.raw_text.value)
-        # index, text_search_rel = search_text("a girl use a phone", 10)
-        # frame_ids = index[0]
-        frame_ids = [2,1,3,7,9, 10, 11,12, 13, 15, 17, 19, 100]
-        frames = crud.get_mul_frames(session, frame_ids)
-        # Convert each frame to a dictionary
-        frames_data = [frame.to_dict() for frame in frames]
+    # if search_request.raw_text.value:
+    #     print("raw text: ")
+    #     print(search_request.raw_text.value)
+    #     # index, text_search_rel = search_text("a girl use a phone", 10)
+    #     # frame_ids = index[0]
+    #     frame_ids = [2,1,3,7,9, 10, 11,12, 13, 15, 17, 19, 100]
+    #     frames = crud.get_mul_frames(session, frame_ids)
+    #     # Convert each frame to a dictionary
+    #     frames_data = [frame.to_dict() for frame in frames]
         
+    #     result = {
+    #         "message": "Search text successfully",
+    #         "result": frames_data
+    #     }
+
+    #     return JSONResponse(content=result, status_code=status.HTTP_200_OK)
+    try:
+        #model_dump
+        search_info = search_request.model_dump()
+        frames_ids = search_index(search_info, 100)
+
+        frames = crud.get_mul_frames(session, frames_ids)
+
+        frames_data = [frame.to_dict() for frame in frames]
+
         result = {
             "message": "Search text successfully",
             "result": frames_data
         }
 
         return JSONResponse(content=result, status_code=status.HTTP_200_OK)
-    else:
+    except:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid search data")
 # @router.post("/image")
 # def image_search()

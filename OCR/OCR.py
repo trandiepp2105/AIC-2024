@@ -268,7 +268,7 @@ def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):
 
 
 def main():
-    OCR_from_folder('frames',det_model_name='textsnake_resnet50-oclip_fpn-unet_1200e_ctw1500',recog_model_name='vgg_seq2seq',output_dir='result')
+    OCR_from_folder(r'C:\AIC-2024-DATA\frames',det_model_name='textsnake_resnet50-oclip_fpn-unet_1200e_ctw1500',recog_model_name='vgg_seq2seq',output_dir=r'C:\AIC-2024-DATA\ocr_result')
 
 main()
      

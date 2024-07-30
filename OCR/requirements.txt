@@ -2,7 +2,3 @@
 -r requirements/optional.txt
 -r requirements/runtime.txt
 -r requirements/tests.txt
-<<<<<<< HEAD
-=======
-vietocr==0.3.13
->>>>>>> 47060122abe3290e1b6cbfd5adb075c89586e01e

@@ -47,7 +47,7 @@ class MilvusSearch:
                 'data' : vectors['objects'],
                 'anns_field' : fields['objects'],
                 'param' : {
-                    'metric_type' : 'L2',
+                    'metric_type' : 'IP',
                     'params' : {}
                 },
                 'limit' : top_k

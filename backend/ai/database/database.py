@@ -84,7 +84,7 @@ for row in table:
     embedding = get_embedding(video_id, frame_id)
     object_detection = get_object_detection(video_id, frame_id)
     entity[0].append(int(row.id))
-    entity[1].append(embedding)
+    entity[1].append(embedding.astype(np.float32))
     entity[2].append(object_detection)
 
 collection.insert(entity)
