@@ -94,13 +94,15 @@ const BrowsingInterface = ({ frameDisplay, loading = false }) => {
 
   if (loading) {
     return (
-      <LoadingScreen
-        loading={true}
-        bgColor="#a8bdb9"
-        spinnerColor="#EC7700"
-        textColor="#EC7700"
-        text="Loading . . ."
-      />
+      <div className="browsing-interface">
+        <LoadingScreen
+          loading={true}
+          bgColor="#a8bdb9"
+          spinnerColor="#EC7700"
+          textColor="#EC7700"
+          text="Loading . . ."
+        />
+      </div>
     );
   }
   return (
