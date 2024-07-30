@@ -1,13 +1,12 @@
 import os
 import torch
-import time
-import csv
 from torchvision import transforms
 from PIL import Image
 import cv2
 import json
 from ultralytics import YOLO
 from configs import FRAME_WIDTH, FRAME_HEIGHT
+import numpy as np
 
 # Hàm để thay đổi kích thước ảnh
 def resize_image(image, width, height):
@@ -137,9 +136,11 @@ def generate_output_json(folder_path, output_directory, models = 'yolov8m.pt', b
                     for frame_id, frame_detections in detections_per_frame.items():
                         # Tạo tên file JSON từ tên frame
                         json_filename = f"{frame_id}.json"
+                        numpy_filename = f"{frame_id}.npy"
                         output_json = os.path.join(video_output_directory, json_filename)
-                        vector_count = {i:ob['count'] for i,ob in enumerate(frame_detections.values()) if ob['count'] > 0}
-                        vector_count = {100:1.0}
+                        output_numpy = os.path.join(video_output_directory, numpy_filename)
+                        vector_count = [obj['count'] for obj in frame_detections.values()]
+                        np.save(output_numpy, np.array(vector_count, dtype=np.float32))
                         detection = {
                             'info' : frame_detections,
                             'vector_count' : vector_count

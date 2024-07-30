@@ -51,9 +51,9 @@ index_params = {
 }
 
 object_detection_index_params = {
-    "metric_type": "IP",
-    "index_type": "SPARSE_INVERTED_INDEX",
-    "params": {}
+    "metric_type": "L2",
+    "index_type": "IVF_FLAT",
+    "params": {"nlist": 1024}
 }
 
 collection.create_index(field_name="frame_embedding", index_params=index_params)
@@ -71,11 +71,9 @@ def get_embedding(video_id, frame_id):
     return embedding
 
 def get_object_detection(video_id, frame_id):
-    object_detection_path = f"{OBJECTS_FOLDER}/{video_id}/{frame_id}.json"
-    with open(object_detection_path, 'r') as f:
-        object_detection = json.load(f)
-    vector_object = {int(k):float(v) for k,v in object_detection['vector_count'].items()}
-    return vector_object
+    object_detection_path = f"{OBJECTS_FOLDER}/{video_id}/{frame_id}.npy"
+    object_detection = np.load(object_detection_path)
+    return object_detection
     
 entity = [[],[],[]]
 
@@ -84,7 +82,7 @@ for row in table:
     embedding = get_embedding(video_id, frame_id)
     object_detection = get_object_detection(video_id, frame_id)
     entity[0].append(int(row.id))
-    entity[1].append(embedding.astype(np.float32))
+    entity[1].append(embedding)
     entity[2].append(object_detection)
 
 collection.insert(entity)
