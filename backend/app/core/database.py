@@ -20,8 +20,8 @@ def load_data_from_folders(frames_folder: str, videos_folder: str):
     test = "load"
     logging.info(test)
     
-    video_url_base = f"{settings.server_host}/videos"
-    frame_url_base = f"{settings.server_host}/frames"
+    video_url_base = f"{settings.server_host}/stream/videos"
+    frame_url_base = f"{settings.server_host}/stream/frames"
     
     with Session(engine) as session:
         # Load video data

@@ -2,15 +2,17 @@ import React, { useState, useRef, useEffect } from "react";
 import ReactPlayer from "react-player";
 import "./VideoPlayer.scss";
 
-const VideoPlayer = ({ startTime = 0 }) => {
+const VideoPlayer = ({ startTime = 0, videoPath, handleClosePlayerVideo }) => {
   const [playing, setPlaying] = useState(true);
   const [played, setPlayed] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const playerRef = useRef(null);
+  const playerVideoContainer = useRef(null);
   const videoTimeRef = useRef(null);
 
-  const handlePlayPause = () => {
+  const handlePlayPause = (e) => {
+    e.stopPropagation(); // Ngăn chặn sự kiện click lan ra ngoài
     setPlaying(!playing);
   };
 
@@ -57,24 +59,40 @@ const VideoPlayer = ({ startTime = 0 }) => {
     updateSliderBackground(played);
   }, [played]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        playerVideoContainer.current &&
+        !playerVideoContainer.current.contains(event.target)
+      ) {
+        handleClosePlayerVideo();
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [handleClosePlayerVideo]);
+
   return (
-    <div className="video-player">
+    <div
+      className="video-player"
+      ref={playerVideoContainer}
+      onClick={handlePlayPause}
+    >
       <ReactPlayer
         className="video-area"
         ref={playerRef}
-        url="https://www.youtube.com/watch?v=LXb3EKWsInQ"
+        url={videoPath}
+        // url="https://www.youtube.com/watch?v=LXb3EKWsInQ"
         playing={playing}
         onProgress={handleProgress}
         onDuration={handleDuration}
         controls={false} // Disable default controls
-        onPlay={() => {
-          console.log("play");
-          setPlaying(true);
-        }}
-        onPause={() => {
-          console.log("Pause");
-          setPlaying(false);
-        }}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
       />
       <div className="controls">
         <button onClick={handlePlayPause} className="pause-button">
@@ -111,6 +129,7 @@ const VideoPlayer = ({ startTime = 0 }) => {
           value={played}
           onChange={handleSeekChange}
           ref={videoTimeRef}
+          onClick={(e) => e.stopPropagation()} // Ngăn chặn sự kiện click lan ra ngoài
         />
         <div className="video-time">
           {formatTime(currentTime)} / {formatTime(duration)}

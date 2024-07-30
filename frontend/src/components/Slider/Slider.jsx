@@ -1,33 +1,53 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./Slider.scss";
-const Slider = ({ handleChangePriority, name = "slider" }) => {
-  const [value, setValue] = useState(0);
+
+const Slider = ({ handleChangePriority, name = "slider", initValue = 10 }) => {
+  const [value, setValue] = useState(initValue);
   const [inputWidth, setInputWidth] = useState(0);
   const [thumbPos, setThumbPos] = useState(15);
-  const handleChange = (event) => {
-    handleChangePriority(event);
-    const newValue = event.target.value;
-    setValue(newValue);
+  const inputRef = useRef(null);
+
+  const updateThumbPos = (newValue, newInputWidth) => {
     const max = 10;
     const thumbWidth = 30;
-    const rangeWidth = inputWidth - thumbWidth;
+    const rangeWidth = newInputWidth - thumbWidth;
     const posX = (newValue / max) * rangeWidth + thumbWidth / 2;
     setThumbPos(posX);
   };
 
-  const inputRef = useRef(null);
+  const handleChange = (event) => {
+    handleChangePriority(event);
+    const newValue = event.target.value;
+    setValue(newValue);
+    updateThumbPos(newValue, inputWidth);
+  };
 
   useEffect(() => {
     if (inputRef.current) {
       const newInputWidth = inputRef.current.offsetWidth;
       setInputWidth(newInputWidth);
-      const max = 10;
-      const thumbWidth = 30;
-      const rangeWidth = newInputWidth - thumbWidth;
-      const posX = (value / max) * rangeWidth + thumbWidth / 2;
-      setThumbPos(posX);
+      updateThumbPos(value, newInputWidth);
     }
-  }, [inputWidth, value]);
+
+    const handleResize = () => {
+      if (inputRef.current) {
+        const newInputWidth = inputRef.current.offsetWidth;
+        setInputWidth(newInputWidth);
+        updateThumbPos(value, newInputWidth);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [value]);
+
+  useEffect(() => {
+    setValue(initValue);
+  }, [initValue]);
+
   return (
     <div className="slider-container">
       <input

@@ -16,32 +16,23 @@ const HomePage = () => {
 
   const initialSearchData = {
     rawText: {
-      priority: 1,
+      priority: 10,
       value: "",
     },
     objects: {
-      priority: 1,
-      value: [
-        {
-          class: "car",
-          quantity: 0,
-        },
-        {
-          class: "duck",
-          quantity: 0,
-        },
-      ],
+      priority: 10,
+      value: [],
     },
     time: {
-      priority: 1,
+      priority: 10,
       value: "",
     },
     colors: {
-      priority: 1,
+      priority: 10,
       value: initialColorTable,
     },
     image: {
-      priority: 1,
+      priority: 10,
       value: null,
     },
   };
@@ -74,6 +65,7 @@ const HomePage = () => {
   useEffect(() => {
     console.log("search data from home: ", searchData);
   }, [searchData]);
+
   return (
     <HomePageContext.Provider
       value={{

@@ -1,7 +1,7 @@
 from fastapi import Query
 from typing import List, Any
 from sqlmodel import Session, select
-from app.models import FrameBase, Frame
+from app.models import FrameBase, Frame, Video
 from sqlalchemy.sql import func
 
 def create_frame(session: Session, frame_create: FrameBase):
@@ -50,3 +50,32 @@ def count_frames(session: Session) -> int:
     statement = select(func.count(Frame.id))
     result = session.execute(statement).scalar_one()  # Sử dụng scalar_one() để lấy giá trị đơn
     return result
+
+def count_videos(session: Session) -> int:
+    """
+    Count the total number of frames.
+    """
+    statement = select(func.count(Video.id))
+    result = session.execute(statement).scalar_one()  # Sử dụng scalar_one() để lấy giá trị đơn
+    return result
+
+def read_videos(
+    session: Session,
+    limit: int = Query(10, ge=1, le=10),  # Giới hạn kết quả từ 1 đến 100
+    offset: int = Query(0, ge=0)  # Bắt đầu từ 0
+):
+    """
+    Retrieve frames with pagination support.
+    """
+    statement = select(Video).limit(limit).offset(offset)
+    results = session.exec(statement).all()
+    return results
+
+def get_video(session: Session, video_id: int) -> Any:
+    """
+    Retrieve video by a frame_id.
+    """
+    statement = select(Video).where(Video.id == video_id)
+    result = session.exec(statement).first()
+    return result
+

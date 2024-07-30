@@ -21,14 +21,43 @@ import logging
 
 router = APIRouter()
 
-class SearchRequest(BaseModel):
-    raw_text: Optional[str] = Field(None, alias='rawText')
-    object: Optional[str] = None
-    quantity: Optional[int] = None
-    time: Optional[str] = None
-    predicate: Optional[str] = None
-    color: Optional[str] = None
+class RawTextModel(BaseModel):
+    priority: int
+    value: Optional[str] = None
 
+class ObjectModel(BaseModel):
+    class_name: str = Field(None, alias='className')
+    quantity: Optional[int]
+    class Config:
+        populate_by_name = True
+
+class ObjectsModel(BaseModel):
+    priority: int
+    value: Optional[List[ObjectModel]] = None
+
+class TimeModel(BaseModel):
+    priority: int
+    value: Optional[str] = None
+
+class ColorTableModel(BaseModel):
+    column: int
+    row: int
+    table: List[List[str]]
+
+class ColorsModel(BaseModel):
+    priority: int
+    value: ColorTableModel
+
+class ImageModel(BaseModel):
+    priority: int
+    value: Optional[str] = None
+
+class SearchRequest(BaseModel):
+    raw_text: RawTextModel = Field(alias='rawText')
+    objects: ObjectsModel
+    time: TimeModel
+    colors: ColorsModel
+    image: ImageModel
     class Config:
         populate_by_name = True
 
@@ -37,13 +66,12 @@ def text_search(
     search_request: SearchRequest,
     session: SessionDep,
 ):
-
-    # return frames
-    
-    if search_request.raw_text:
+    if search_request.raw_text.value:
+        print("raw text: ")
+        print(search_request.raw_text.value)
         # index, text_search_rel = search_text("a girl use a phone", 10)
         # frame_ids = index[0]
-        frame_ids = [2,1,3,7,9, 10, 11,12, 13, 15, 17, 19]
+        frame_ids = [2,1,3,7,9, 10, 11,12, 13, 15, 17, 19, 100]
         frames = crud.get_mul_frames(session, frame_ids)
         # Convert each frame to a dictionary
         frames_data = [frame.to_dict() for frame in frames]
