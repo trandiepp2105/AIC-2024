@@ -37,7 +37,7 @@ if collection_name in utility.list_collections():
 fields = [
     FieldSchema(name="idx", dtype=DataType.INT64, is_primary=True),
     FieldSchema(name="frame_embedding", dtype=DataType.FLOAT_VECTOR, dim=768),
-    FieldSchema(name="object_detection", dtype=DataType.SPARSE_FLOAT_VECTOR)
+    FieldSchema(name="object_detection", dtype=DataType.FLOAT_VECTOR, dim=80)
 ]
 
 schema = CollectionSchema(fields=fields)

@@ -47,8 +47,8 @@ class MilvusSearch:
                 'data' : vectors['objects'],
                 'anns_field' : fields['objects'],
                 'param' : {
-                    'metric_type' : 'IP',
-                    'params' : {}
+                    'metric_type' : 'L2',
+                    'params' : {'nprobe': 92}
                 },
                 'limit' : top_k
             }
@@ -115,9 +115,10 @@ class MilvusSearch:
             output_fields=['idx']
         )
 
+        print(response[0].distances)
+
         resuit = []
         for res in response[0]:
-            print(res.entity.get('idx'))
             resuit.append(res.entity.get('idx'))
 
         return resuit
