@@ -245,11 +245,11 @@ def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):
         print(f"Directory {output_dir} created successfully")
 
     #initalize text detection
-    text_det=TextDetInferencer(model=det_model_name,device='cuda:0')
+    text_det=TextDetInferencer(model=det_model_name)
 
     # initial text regconition
     config = Cfg.load_config_from_name(recog_model_name)
-    config['device']='cuda:0'
+    config['device']='cpu'
     text_recog = Predictor(config)
     # go through all video folder
     for video_folder in os.listdir(folder_path):

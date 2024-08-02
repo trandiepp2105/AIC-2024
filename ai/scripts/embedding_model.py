@@ -4,24 +4,24 @@ import open_clip
 class CLIP_Embedding:
     def __init__(self, model_name="ViT-L-14", pretrained="commonpool_xl_laion_s13b_b90k", device="cuda"):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.model, _, self.preprocess = open_clip.create_model_and_transforms(model_name, pretrained=pretrained, device='cuda', cache_dir='C:/AIC-2024-DATA/models/hub')
+        self.model, _, self.preprocess = open_clip.create_model_and_transforms(model_name, pretrained=pretrained, device='cuda')
         self.tokenizer = open_clip.get_tokenizer('ViT-L-14')
 
     def get_image_embedding(self, image):
         image_input = self.preprocess(image).unsqueeze(0).to(self.device)
-        with torch.no_grad(), torch.cuda.amp.autocast():
+        with torch.no_grad(), torch.amp.autocast('cuda'):
             image_features = self.model.encode_image(image_input)
         return image_features[0]/image_features[0].norm()
     
     def get_images_embedding(self, images):
         image_input = torch.stack([self.preprocess(image) for image in images]).to(self.device)
-        with torch.no_grad(), torch.cuda.amp.autocast():
+        with torch.no_grad(), torch.amp.autocast('cuda'):
             image_features = self.model.encode_image(image_input)
         return image_features/image_features.norm(dim=-1, keepdim=True)
 
     def get_text_embedding(self, text):
         text_input = self.tokenizer(text).to(self.device)
-        with torch.no_grad(), torch.cuda.amp.autocast():
+        with torch.no_grad(), torch.amp.autocast('cuda'):
             text_features = self.model.encode_text(text_input)
         return text_features[0]/text_features[0].norm()
     

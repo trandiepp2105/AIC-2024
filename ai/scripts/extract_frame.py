@@ -11,7 +11,7 @@ def similar_cosine(v1, v2):
 def save_keyframes_and_embedding(video_path, keyframe_folder, embedding_folder, embedding_model, threshold=1e-3, width=1024, height=1024, batch_size=256): 
     video_name = os.path.basename(video_path).split('.')[0]
     video_name = video_name.replace(' ', '_')
-    keyframe_out_dir = os.path.join(keyframe_folder, video_name)
+    keyframe_out_dir = keyframe_folder
     if not os.path.exists(keyframe_out_dir):
         os.makedirs(keyframe_out_dir)
     embedding_out_dir = os.path.join(embedding_folder, video_name)
@@ -80,7 +80,7 @@ def extract_videoframes(videos_path, keyframe_folder, frame_folder, width=1024, 
         os.makedirs(frame_out_dir)
     cap = cv2.VideoCapture(videos_path)
     frame_cout = 0
-    with open(os.path.join(keyframe_folder, f'{video_name}\\{video_name}.pickle'), 'rb') as f:
+    with open(os.path.join(keyframe_folder, f'{video_name}.pickle'), 'rb') as f:
         keyframes = pickle.load(f)
     while True:
         ret, frame = cap.read()

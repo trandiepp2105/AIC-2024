@@ -7,7 +7,7 @@ from PIL import Image
 from io import BytesIO
 import base64
 
-embedding_model = CLIPSingleton()
+embedding_model = CLIPSingleton(model_name='ViT-L-14-quickgelu', pretrained='dfn2b', device='cuda')
 search = MilvusSearch(collection_name='search_collection')
 
 def image_search(image, top_k=500):
@@ -52,12 +52,11 @@ def search_index(search_input, top_k=500):
         'ocr_embedding': 'ocr_embedding',
         'audio_embedding': 'audio_embedding'
     }
-    total_priority = sum([v['priority'] for k,v in search_input.items()])
     priorities = {
-        'description_vector': search_input['raw_text']['priority']/total_priority if vectors['description_vector'] is not None else 0,
-        'objects': search_input['objects']['priority']/total_priority if vectors['objects'] is not None else 0,
-        'time': search_input['time']['priority']/total_priority if vectors['time'] is not None else 0,
-        'similar_image_vector': search_input['image']['priority']/total_priority if vectors['similar_image_vector'] is not None else 0,
+        'description_vector': search_input['raw_text']['priority'],
+        'objects': search_input['objects']['priority'],
+        'time': search_input['time']['priority'],
+        'similar_image_vector': search_input['image']['priority'],
         # 'ocr_embedding': search_input['ocr']['priority']/total_priority if vectors['ocr_embedding'] is not None else 0,
         # 'audio_embedding': search_input['audio']['priority']/total_priority if vectors['audio_embedding'] is not None else 0,
     }

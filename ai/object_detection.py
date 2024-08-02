@@ -119,7 +119,7 @@ def generate_output_json(folder_path, output_directory, models = 'yolov8m.pt', b
     models = {
         'models': YOLO(models)
     }   
-    os.makedirs(output_directory, exist_ok=True)
+    # os.makedirs(output_directory, exist_ok=True)
     # Duyệt qua từng thư mục con trong thư mục gốc
     for subdir_name in os.listdir(folder_path):
         subdir_path = os.path.join(folder_path, subdir_name)
