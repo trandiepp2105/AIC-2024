@@ -117,7 +117,7 @@ def process_frames(frame_dir, model, batch_size=16):
 
 def generate_output_json(folder_path, output_directory, models = 'yolov8m.pt', batch_size = 64):
     models = {
-        'models': YOLO(models)
+        'models': YOLO(models, verbose=False)
     }   
     # os.makedirs(output_directory, exist_ok=True)
     # Duyệt qua từng thư mục con trong thư mục gốc

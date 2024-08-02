@@ -1,8 +1,6 @@
-FROM python:3.10
+FROM pytorch/pytorch:2.4.0-cuda11.8-cudnn9-devel
 
 WORKDIR /ai
-
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 COPY requirements.txt ./
 

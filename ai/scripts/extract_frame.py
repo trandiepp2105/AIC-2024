@@ -4,11 +4,13 @@ import cv2
 import numpy as np
 import pickle
 from tqdm import tqdm
+from multiprocessing import Pool
+from scripts.embedding_model import CLIP_Embedding
 
 def similar_cosine(v1, v2):
     return np.dot(v1, v2)
 
-def save_keyframes_and_embedding(video_path, keyframe_folder, embedding_folder, embedding_model, threshold=1e-3, width=1024, height=1024, batch_size=256): 
+def save_keyframes_and_embedding(video_path, keyframe_folder, embedding_folder, embedding_model, threshold=1e-3, width=1024, height=1024, batch_size=32): 
     video_name = os.path.basename(video_path).split('.')[0]
     video_name = video_name.replace(' ', '_')
     keyframe_out_dir = keyframe_folder
@@ -29,7 +31,7 @@ def save_keyframes_and_embedding(video_path, keyframe_folder, embedding_folder, 
             if len(batchs) > 0:
                 v = embedding_model.get_images_embedding(batchs).detach().cpu().numpy().astype(np.float32)
                 for i in range(len(v)):
-                    if similar_cosine(v[i], d_prev) > threshold:
+                    if similar_cosine(v[i], d_prev) < threshold:
                         d_prev = v[i]
                         embedding_path = os.path.join(embedding_out_dir, f'{ids[i]}')
                         np.save(embedding_path, v[i])
@@ -54,7 +56,7 @@ def save_keyframes_and_embedding(video_path, keyframe_folder, embedding_folder, 
             if len(batchs) == batch_size:
                 v = embedding_model.get_images_embedding(batchs).detach().cpu().numpy().astype(np.float32)
                 for i in range(len(v)):
-                    if similar_cosine(v[i], d_prev) < 0.9:
+                    if similar_cosine(v[i], d_prev) < threshold:
                         d_prev = v[i]
                         embedding_path = os.path.join(embedding_out_dir, f'{ids[i]}')
                         np.save(embedding_path, v[i])
@@ -67,10 +69,18 @@ def save_keyframes_and_embedding(video_path, keyframe_folder, embedding_folder, 
         pickle.dump(keyframes, f)
     cap.release()
 
-def extract_keyframes(videos_folder, keyframe_folder, embedding_folder, embedding_model, threshold=1e-3, width=1024, height=1024):
+def extract_keyframes(videos_folder, keyframe_folder, embedding_folder, embedding_model, threshold=1e-3, width=1024, height=1024, batch_size=32):
     videos = wfile(videos_folder, '.mp4')
     for video in tqdm(videos):
-        save_keyframes_and_embedding(video, keyframe_folder, embedding_folder, embedding_model, threshold, width, height)
+        save_keyframes_and_embedding(video, keyframe_folder, embedding_folder, embedding_model, threshold, width, height, batch_size)
+
+def multiprocessing_extract_keyframes(videos_folder, keyframe_folder, embedding_folder, embedding_model, threshold=1e-3, width=1024, height=1024):
+    videos = wfile(videos_folder, '.mp4')
+    list_args = []
+    for video in videos:
+        list_args.append((video, keyframe_folder, embedding_folder, embedding_model, threshold, width, height))
+    with Pool(2) as p:
+        p.starmap(save_keyframes_and_embedding, list_args)
 
 def extract_videoframes(videos_path, keyframe_folder, frame_folder, width=1024, height=1024):
     video_name = os.path.basename(videos_path).split('.')[0]
@@ -98,3 +108,13 @@ def extract_from_keyframes(video_folder, keyframe_folder, frame_folder, width=10
     videos = wfile(video_folder, '.mp4')
     for video in tqdm(videos):
         extract_videoframes(video, keyframe_folder, frame_folder, width, height)
+
+def multiprocessing_extract_from_keyframes(video_folder, keyframe_folder, frame_folder, width=1024, height=1024, num_processes=8):
+    videos = wfile(video_folder, '.mp4')
+    list_args = []
+    for video in videos:
+        list_args.append((video, keyframe_folder, frame_folder, width, height))
+    with Pool(num_processes) as p:
+        p.starmap(extract_videoframes, list_args)
+
+    
