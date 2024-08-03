@@ -268,6 +268,11 @@ def extract_text_from_frame(frame_path,text_det,text_recog,threshold_score=0.59)
     return result
 
 def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):
+    # Create the directory
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+        print(f"Directory {output_dir} created successfully")
+
     #initalize text detection
     text_det=TextDetInferencer(model=det_model_name)
 
@@ -291,12 +296,13 @@ def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):
             json.dump(file_content,f,indent=4)
      
 
-# def main():
-#     OCR_from_folder(folder_path=r'C:\AIC-2024-DATA\frames',
-#                     det_model_name='textsnake_resnet50-oclip_fpn-unet_1200e_ctw1500',
-#                     recog_model_name='vgg_seq2seq',
-#                     output_dir=r'C:\AIC-2024-DATA\ocr_result'
-#                     )
+def main():
+    OCR_from_folder(folder_path=r'C:\AIC-2024-DATA\frames',
+                    det_model_name='textsnake_resnet50-oclip_fpn-unet_1200e_ctw1500',
+                    recog_model_name='vgg_seq2seq',
+                    output_dir=r'C:\AIC-2024-DATA\ocr_result',
+                    threshold_score=0.59
+                    )
 
-# main()
+main()
      

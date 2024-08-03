@@ -7,9 +7,3 @@ matplotlib
 ultralytics
 opencv-python
 open_clip_torch
--r OCR/requirements/build.txt
--r OCR/requirements/optional.txt
--r OCR/requirements/runtime.txt
--r OCR/requirements/tests.txt
--r OCR/requirements/mminstall.txt
-vietocr
