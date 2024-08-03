@@ -4,7 +4,7 @@ import open_clip
 class CLIP_Embedding:
     def __init__(self, model_name="ViT-L-14", pretrained="commonpool_xl_laion_s13b_b90k", device="cuda"):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.model, _, self.preprocess = open_clip.create_model_and_transforms(model_name, pretrained=pretrained, device=self.device, cache_dir = r"C:\AIC-2024-DATA\models\hub")
+        self.model, _, self.preprocess = open_clip.create_model_and_transforms(model_name, pretrained=pretrained, device=self.device)
         self.model.eval()
         self.tokenizer = open_clip.get_tokenizer('ViT-L-14')
 

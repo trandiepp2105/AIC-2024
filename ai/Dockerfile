@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.4.0-cuda11.8-cudnn9-devel
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 
 WORKDIR /ai
 
@@ -10,6 +10,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements.txt
 
 COPY ./ ./
+
+RUN pip install openmim
+
+RUN mim install -e ./OCR
 
 ENV PYTHONPATH=/ai
 

@@ -11,6 +11,7 @@ import json
 from tqdm import tqdm
 import numpy as np
 import math
+import torch
 
 
 
@@ -195,25 +196,39 @@ def deskew_polygon(image,polygon):
 
     return rois
 
+# def merge_text(text):
+#     result=text[0]["text"]
+#     pre_location=text[0]["location"][1]
+#     for i in range(1,len(text)):
+#         if text[i]["location"][1]-pre_location > 5:
+#             result+="\n"
+#         else:
+#             result+=","
+#         result+=text[i]["text"] 
+#     return result
 def merge_text(text):
-    result=text[0]["text"]
-    pre_location=text[0]["location"][1]
-    for i in range(1,len(text)):
-        if text[i]["location"][1]-pre_location > 5:
-            result+="\n"
-        else:
-            result+=","
-        result+=text[i]["text"] 
-    return result
+    try:
+        result=text[0]["text"]
+        pre_location=text[0]["location"][1]
+        for i in range(len(text)):
+            if text[i]["location"][1]-pre_location > 5:
+                result+="\n"
+            else:
+                result+=" "
+            result+=text[i]["text"] 
+        return result
+    except:
+        return ""
 
 def extract_text_from_frame(frame_path,text_det,text_recog,threshold_score=0.59):
     filename, ext = os.path.splitext(os.path.basename(frame_path))
     result={}
     all_text=[]
     # save image as array (H,W,C)
-    image=cv2.imread(frame_path)[0:650]
+    image=cv2.imread(frame_path)
     h=image.shape[0]
     w=image.shape[1]
+    image = image[0:int(h*9/10)]
 
     # detect text and find bounding box
     det_res=text_det(image,progress_bar=False,save_vis=False,out_dir='text_detect_restult')
@@ -267,18 +282,15 @@ def extract_text_from_frame(frame_path,text_det,text_recog,threshold_score=0.59)
     result[filename]=merge_text(all_text)
     return result
 
-def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):
-    # Create the directory
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
-        print(f"Directory {output_dir} created successfully")
-
+def OCR_from_folder(folder_path,output_dir,threshold_score,det_model_name='textsnake_resnet50-oclip_fpn-unet_1200e_ctw1500',
+                                                                    recog_model_name='vgg_seq2seq',):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     #initalize text detection
-    text_det=TextDetInferencer(model=det_model_name)
+    text_det=TextDetInferencer(model=det_model_name, device=device)
 
     # initial text regconition
     config = Cfg.load_config_from_name(recog_model_name)
-    config['device']='cpu'
+    config['device']=device
     text_recog = Predictor(config)
     # go through all video folder
     for video_folder in os.listdir(folder_path):
@@ -290,19 +302,7 @@ def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):
             for frame in tqdm(os.listdir(video_folder_path)):
                 frame_path=os.path.join(video_folder_path,frame)
                 if os.path.isfile(frame_path) == True:
-                    ocr_result=extract_text_from_frame(frame_path,text_det,text_recog)
+                    ocr_result=extract_text_from_frame(frame_path,text_det,text_recog,threshold_score)
                     file_content.update(ocr_result)
         with open(f'{output_dir}/{video_folder}.json','w') as f:
             json.dump(file_content,f,indent=4)
-     
-
-def main():
-    OCR_from_folder(folder_path=r'C:\AIC-2024-DATA\frames',
-                    det_model_name='textsnake_resnet50-oclip_fpn-unet_1200e_ctw1500',
-                    recog_model_name='vgg_seq2seq',
-                    output_dir=r'C:\AIC-2024-DATA\ocr_result',
-                    threshold_score=0.59
-                    )
-
-main()
-     
