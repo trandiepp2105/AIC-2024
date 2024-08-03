@@ -96,15 +96,18 @@ def rotate_image(image,center,angle):
     new_width = int(abs(w * math.cos(angle_rad)) + abs(h * math.sin(angle_rad)))
     new_height = int(abs(w * math.sin(angle_rad)) + abs(h * math.cos(angle_rad)))
 
+
     rotation_matrix = cv2.getRotationMatrix2D(center, angle, scale=1.0)
 
     # Adjust the rotation matrix to take into account the new dimensions
-    rotation_matrix[0, 2] += (new_width / 2) - w / 2
-    rotation_matrix[1, 2] += (new_height / 2) - h / 2
+    rotation_matrix[0, 2] += (new_width / 2) - center[0]
+    rotation_matrix[1, 2] += (new_height / 2) - center[1]
 
     rotated_image = cv2.warpAffine(image, rotation_matrix, (new_width, new_height))
     
     return rotated_image,rotation_matrix
+
+    
 
 
 def deskew_polygon(image,polygon):
@@ -136,14 +139,17 @@ def deskew_polygon(image,polygon):
     rois=[]
 
     #if the angle is too small, we dont deskew it
-    if abs(angle) > 5 and abs(angle-90) >15 :
+    if abs(angle) > 4 and abs(angle-90) >15 :
         # rotate the image
         if clockwise == False:
             angle=angle-90
         rotated_image,rotation_matrix=rotate_image(image,center,angle)
 
-        # get the new polygon
-        deskewed_points=cv2.transform(np.array([points]), rotation_matrix)[0]
+
+         # Transform the points
+        ones = np.ones(shape=(len(points), 1))
+        points_ones = np.hstack([points, ones])
+        deskewed_points = rotation_matrix.dot(points_ones.T).T
     else:
         deskewed_points=np.array(points).astype(int)
         rotated_image=image
@@ -168,8 +174,11 @@ def deskew_polygon(image,polygon):
         # rotate the image
         rotated_image,rotation_matrix=rotate_image(image,center,angle+i*90)
 
-        # get the new polygon
-        deskewed_points=cv2.transform(np.array([points]), rotation_matrix)[0]
+
+         # Transform the points
+        ones = np.ones(shape=(len(points), 1))
+        points_ones = np.hstack([points, ones])
+        deskewed_points = rotation_matrix.dot(points_ones.T).T
 
     #get the bouding box
         x_min=int(min(deskewed_points[:,0]))
@@ -186,24 +195,43 @@ def deskew_polygon(image,polygon):
 
     return rois
 
-def extract_text_from_frame(frame_path,text_det,text_recog):
-    threshold_score=0.699
+def merge_text(text):
+    result=text[0]["text"]
+    pre_location=text[0]["location"][1]
+    for i in range(1,len(text)):
+        if text[i]["location"][1]-pre_location > 5:
+            result+="\n"
+        else:
+            result+=","
+        result+=text[i]["text"] 
+    return result
+
+def extract_text_from_frame(frame_path,text_det,text_recog,threshold_score=0.59):
     filename, ext = os.path.splitext(os.path.basename(frame_path))
-    result={filename:[]}
+    result={}
+    all_text=[]
     # save image as array (H,W,C)
     image=cv2.imread(frame_path)[0:650]
     h=image.shape[0]
     w=image.shape[1]
 
     # detect text and find bounding box
-    det_res=text_det(image,progress_bar=False,save_vis=True,out_dir='text_detect_restult')
+    det_res=text_det(image,progress_bar=False,save_vis=False,out_dir='text_detect_restult')
 
     #get bounding box
     polygons=det_res['predictions'][0]['polygons']
 
     # regconize text in each box
-    i=0
     for polygon in polygons:
+        #in order to search text easy, we will join all text into an only text
+        # To maintain the meaning of all text relatively 
+        # this is the basic way
+        # if the text A  locates higher than B then in the result : "A B"
+        # if A and B both locate as the same height, then prior to the one has x smaller
+        # we will use pivot to mark where the text locate
+        # pivot is the most left and lowest point in polygon
+        pivot=min(poly2point(polygon),key=lambda x: (x[0],x[1]))
+
         # get the rois after deskewed and padding
         # rois include the roi after deskew and the rotate 180 of it
         rois=deskew_polygon(image=image,polygon=polygon)
@@ -211,9 +239,6 @@ def extract_text_from_frame(frame_path,text_det,text_recog):
 
         text_recog_result=[]
 
-        # the flag check if the first roi is good enough
-        # if it's enough, obviously, the other is bad so we dont need to predict the bad one
-        # if the pass flag is True we will skip to the next polygon
         pass_flag=False
         for roi in rois:
             gray_roi=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
@@ -225,17 +250,21 @@ def extract_text_from_frame(frame_path,text_det,text_recog):
             resize_roi=cv2.resize(gray_roi,target_size,interpolation=cv2.INTER_LINEAR)
             text,score=text_recog.predict(Image.fromarray(resize_roi),return_prob=True)
             text_recog_result.append({"text":text,"score":score})
-            print(text,score)
-            cv2.imwrite(f'text_detect_restult/{filename}_{i}.jpg',roi)
-            i+=1
-            if score > threshold_score:
+            if score > 0.699:
                 pass_flag=True
                 break
         if pass_flag == False:
             text_recog_result.sort(key= lambda x: x["score"])
         the_best_result=text_recog_result[-1]
+        #add the location to the text we detect
+        the_best_result["location"]=pivot
         if the_best_result["score"] > threshold_score:
-            result[filename].append(the_best_result)
+            all_text.append(the_best_result)
+        else:
+            the_best_result["text"]=""
+            all_text.append(the_best_result)
+    all_text=sorted(all_text,key=lambda x: (x["location"][1],x["location"][0]))
+    result[filename]=merge_text(all_text)
     return result
 
 def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):
@@ -260,10 +289,14 @@ def OCR_from_folder(folder_path,det_model_name,recog_model_name,output_dir):
                     file_content.update(ocr_result)
         with open(f'{output_dir}/{video_folder}.json','w') as f:
             json.dump(file_content,f,indent=4)
+     
 
-
-def main():
-    OCR_from_folder(r'C:\AIC-2024-DATA\frames',det_model_name='textsnake_resnet50-oclip_fpn-unet_1200e_ctw1500',recog_model_name='vgg_seq2seq',output_dir=r'C:\AIC-2024-DATA\ocr_result')
+# def main():
+#     OCR_from_folder(folder_path=r'C:\AIC-2024-DATA\frames',
+#                     det_model_name='textsnake_resnet50-oclip_fpn-unet_1200e_ctw1500',
+#                     recog_model_name='vgg_seq2seq',
+#                     output_dir=r'C:\AIC-2024-DATA\ocr_result'
+#                     )
 
 # main()
      
