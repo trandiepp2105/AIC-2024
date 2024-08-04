@@ -19,6 +19,10 @@ const HomePage = () => {
       priority: 10,
       value: "",
     },
+    nextFrameText: {
+      priority: 10,
+      value: "",
+    },
     objects: {
       priority: 10,
       value: [],

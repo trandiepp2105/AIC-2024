@@ -43,6 +43,13 @@ const SearchInterface = () => {
   const [pastedImage, setPastedImage] = useState(null);
   const [activeImageOption, setActiveImageOption] = useState("colors");
   const [showListClass, setShowListClass] = useState(false);
+  const queryOption = {
+    CURRENTFRAME: "CURRENTFRAME",
+    NEXTFRAME: "NEXTFRAME",
+  };
+  const [activeQueryOption, setActiveQueryOption] = useState(
+    queryOption.CURRENTFRAME
+  );
   const objectsInputRef = useRef(null);
   const listClassRef = useRef(null);
   const imageDataRef = useRef(null);
@@ -242,21 +249,58 @@ const SearchInterface = () => {
   return (
     <div className="search-interface">
       <div className="container">
-        <div className="wrapper-raw-text-area">
-          <Slider
-            handleChangePriority={handleChangePriority}
-            name="raw-text-priority"
-            initValue={searchData.rawText.priority}
-          />
-          <textarea
-            name="rawText"
-            id="raw-text"
-            className="raw-text-area"
-            placeholder="enter key search"
-            onChange={handleChangeSearchData}
-            value={searchData.rawText.value}
-          />
+        <div className="picker-button-option">
+          <button
+            className={`${
+              activeQueryOption === queryOption.CURRENTFRAME ? "active-opt" : ""
+            }`}
+            onClick={() => setActiveQueryOption(queryOption.CURRENTFRAME)}
+          >
+            QUERY TEXT
+          </button>
+          <button
+            className={`${
+              activeQueryOption === queryOption.NEXTFRAME ? "active-opt" : ""
+            }`}
+            onClick={() => setActiveQueryOption(queryOption.NEXTFRAME)}
+          >
+            NEXT FRAME
+          </button>
         </div>
+        {activeQueryOption === queryOption.CURRENTFRAME ? (
+          <div className="wrapper-raw-text-area">
+            <Slider
+              handleChangePriority={handleChangePriority}
+              name="raw-text-priority"
+              initValue={searchData.rawText.priority}
+            />
+            <textarea
+              name="rawText"
+              id="raw-text"
+              className="raw-text-area"
+              placeholder="enter key search"
+              onChange={handleChangeSearchData}
+              value={searchData.rawText.value}
+            />
+          </div>
+        ) : (
+          <div className="wrapper-raw-text-area">
+            <Slider
+              handleChangePriority={handleChangePriority}
+              name="next-frame-text-priority"
+              initValue={searchData.nextFrameText.priority}
+            />
+            <textarea
+              name="nextFrameText"
+              id="next-frame-text"
+              className="raw-text-area"
+              placeholder="enter query text for next frame"
+              onChange={handleChangeSearchData}
+              value={searchData.nextFrameText.value}
+            />
+          </div>
+        )}
+
         <div className="wrapper-search-by-task-area">
           <Slider
             handleChangePriority={handleChangePriority}
@@ -358,9 +402,9 @@ const SearchInterface = () => {
           initValue={searchData[activeImageOption].priority}
         />
         <div className="color-zone" id="color-zone">
-          <div className="color-zone-option">
+          <div className="picker-button-option">
             <button
-              className={`colors-table-opt ${
+              className={` ${
                 activeImageOption === "colors" ? "active-opt" : ""
               }`}
               onClick={() => handleChangeActiveImageOption("colors")}
@@ -368,9 +412,7 @@ const SearchInterface = () => {
               COLORS PICK
             </button>
             <button
-              className={`image-opt ${
-                activeImageOption === "image" ? "active-opt" : ""
-              }`}
+              className={`${activeImageOption === "image" ? "active-opt" : ""}`}
               onClick={() => handleChangeActiveImageOption("image")}
             >
               IMAGE

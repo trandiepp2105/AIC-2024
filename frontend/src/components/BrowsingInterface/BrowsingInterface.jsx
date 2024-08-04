@@ -4,7 +4,7 @@ import VideoPlayer from "../VideoPlayer/VideoPlayer";
 import LoadingScreen from "react-loading-screen";
 import get_video from "../../services/get_video";
 import PickedFrames from "../PickedFrames/PickedFrames";
-
+import MetadataPoup from "../MetadataPopup/MetadataPoup";
 function calculateFrameTime(frameNumber, fps = 25) {
   if (fps <= 0) {
     throw new Error("FPS phải lớn hơn 0");
@@ -108,6 +108,7 @@ const BrowsingInterface = ({ frameDisplay, loading = false }) => {
   return (
     <>
       <div className="browsing-interface">
+        {/* {<MetadataPoup />} */}
         {frameDisplay && frameDisplay.length > 0 ? (
           <div className="browsing-option">
             <button
