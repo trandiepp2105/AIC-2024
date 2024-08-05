@@ -139,7 +139,7 @@ def deskew_polygon(image,polygon):
 
     rois=[]
 
-    #if the angle is too small, we dont deskew it
+    # if the angle is too small, we don't deskew it
     if abs(angle) > 4 and abs(angle-90) >15 :
         # rotate the image
         if clockwise == False:
@@ -211,11 +211,7 @@ def merge_text(text):
         result=text[0]["text"]
         pre_location=text[0]["location"][1]
         for i in range(len(text)):
-            if text[i]["location"][1]-pre_location > 5:
-                result+="\n"
-            else:
-                result+=" "
-            result+=text[i]["text"] 
+            result+=" "+text[i]["text"] 
         return result
     except:
         return ""
@@ -238,8 +234,6 @@ def extract_text_from_frame(frame_path,text_det,text_recog,threshold_score=0.59)
 
     # regconize text in each box
     for polygon in polygons:
-<<<<<<< HEAD:OCR/OCR.py
-=======
         #in order to search text easy, we will join all text into an only text
         # To maintain the meaning of all text relatively 
         # this is the basic way
@@ -247,12 +241,11 @@ def extract_text_from_frame(frame_path,text_det,text_recog,threshold_score=0.59)
         # if A and B both locate as the same height, then prior to the one has x smaller
         # we will use pivot to mark where the text locate
         # pivot is the most left and lowest point in polygon
-        pivot=min(poly2point(polygon),key=lambda x: (x[0],x[1]))
+        pivot = min(poly2point(polygon),key = lambda x: (x[0],x[1]))
 
->>>>>>> d05dc2d1f13cc08601c2a2185d8351caa88af352:ai/OCR/OCR.py
         # get the rois after deskewed and padding
         # rois include the roi after deskew and the rotate 180 of it
-        rois=deskew_polygon(image=image,polygon=polygon)
+        rois=deskew_polygon(image = image,polygon=polygon)
         #resize the image height=175, width=400
 
         text_recog_result=[]
@@ -274,10 +267,6 @@ def extract_text_from_frame(frame_path,text_det,text_recog,threshold_score=0.59)
         if pass_flag == False:
             text_recog_result.sort(key= lambda x: x["score"])
         the_best_result=text_recog_result[-1]
-<<<<<<< HEAD:OCR/OCR.py
-        if the_best_result["score"] > 0.699:
-            result[filename].append(the_best_result)
-=======
         #add the location to the text we detect
         the_best_result["location"]=pivot
         if the_best_result["score"] > threshold_score:
@@ -287,7 +276,6 @@ def extract_text_from_frame(frame_path,text_det,text_recog,threshold_score=0.59)
             all_text.append(the_best_result)
     all_text=sorted(all_text,key=lambda x: (x["location"][1],x["location"][0]))
     result[filename]=merge_text(all_text)
->>>>>>> d05dc2d1f13cc08601c2a2185d8351caa88af352:ai/OCR/OCR.py
     return result
 
 def OCR_from_folder(folder_path,output_dir,threshold_score,det_model_name='textsnake_resnet50-oclip_fpn-unet_1200e_ctw1500',
@@ -312,5 +300,5 @@ def OCR_from_folder(folder_path,output_dir,threshold_score,det_model_name='texts
                 if os.path.isfile(frame_path) == True:
                     ocr_result=extract_text_from_frame(frame_path,text_det,text_recog,threshold_score)
                     file_content.update(ocr_result)
-        with open(f'{output_dir}/{video_folder}.json','w') as f:
-            json.dump(file_content,f,indent=4)
+        with open(f'{output_dir}/{video_folder}.json','w',encoding='utf-8') as f:
+            json.dump(file_content,f,ensure_ascii=False,indent=4)
