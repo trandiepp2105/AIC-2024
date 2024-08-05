@@ -300,5 +300,5 @@ def OCR_from_folder(folder_path,output_dir,threshold_score,det_model_name='texts
                 if os.path.isfile(frame_path) == True:
                     ocr_result=extract_text_from_frame(frame_path,text_det,text_recog,threshold_score)
                     file_content.update(ocr_result)
-        with open(f'{output_dir}/{video_folder}.json','w') as f:
-            json.dump(file_content,f,indent=4)
+        with open(f'{output_dir}/{video_folder}.json','w',encoding='utf-8') as f:
+            json.dump(file_content,f,ensure_ascii=False,indent=4)
