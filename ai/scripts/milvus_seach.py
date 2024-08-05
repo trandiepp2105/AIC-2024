@@ -2,7 +2,7 @@ from pymilvus import connections, Collection, DataType, FieldSchema, CollectionS
 
 class MilvusSearch:
     def __init__(self, host='localhost', port='19530', collection_name='embedding_collection'):
-        self.client = connections.connect(host=host, port=port)
+        self.client = connections.connect(host=host, port=port,time_out=100)
         try:
             self.collection = Collection(collection_name)
         except:

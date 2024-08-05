@@ -31,13 +31,17 @@ connections.connect("default", host="milvus-standalone", port="19530")
 collection_name = "search_collection"
 
 if collection_name in utility.list_collections():
-    collection = Collection(collection_name)
-    collection.drop()
+    try:
+        collection = Collection(collection_name)
+        collection.drop()
+    except Exception as e:
+        print(f"Error: {e}")
 
 fields = [
     FieldSchema(name="idx", dtype=DataType.INT64, is_primary=True),
     FieldSchema(name="frame_embedding", dtype=DataType.FLOAT_VECTOR, dim=768),
-    FieldSchema(name="object_detection", dtype=DataType.FLOAT_VECTOR, dim=80)
+    FieldSchema(name="object_detection", dtype=DataType.FLOAT_VECTOR, dim=80),
+    FieldSchema(name="ocr_embedding", dtype=DataType.FLOAT_VECTOR, dim=768)
 ]
 
 schema = CollectionSchema(fields=fields)
@@ -56,8 +60,15 @@ object_detection_index_params = {
     "params": {"nlist": 1024}
 }
 
+ocr_embedding_index_params = {
+    "metric_type": "IP",
+    "index_type": "IVF_FLAT",
+    "params": {"nlist": 1024}
+}
+
 collection.create_index(field_name="frame_embedding", index_params=index_params)
 collection.create_index(field_name="object_detection", index_params=object_detection_index_params)
+collection.create_index(field_name="ocr_embedding", index_params=ocr_embedding_index_params)
 
 def get_video_frame(path):
     paths = path.split('/')
@@ -74,16 +85,32 @@ def get_object_detection(video_id, frame_id):
     object_detection_path = f"{OBJECTS_FOLDER}/{video_id}/{frame_id}.npy"
     object_detection = np.load(object_detection_path)
     return object_detection
+
+def get_ocr_embedding(video_id, frame_id):
+    ocr_embedding_path = f"{OCR_EMBEDDING_FOLDER}/{video_id}/{frame_id}.npy"
+    ocr_embedding = np.load(ocr_embedding_path)
+    return ocr_embedding
     
-entity = [[],[],[]]
+entity = [[],[],[],[]]
+
+count = 0
+mut = 100
 
 for row in table:
     video_id, frame_id = get_video_frame(row.path)
     embedding = get_embedding(video_id, frame_id)
     object_detection = get_object_detection(video_id, frame_id)
+    ocr_embedding = get_ocr_embedding(video_id, frame_id)
     entity[0].append(int(row.id))
     entity[1].append(embedding)
     entity[2].append(object_detection)
+    entity[3].append(ocr_embedding)
+
+    count += 1
+    if count % mut == 0:
+        print(f"Inserting {mut} frames")
+        collection.insert(entity)
+        entity = [[],[],[],[]]
 
 collection.insert(entity)
 

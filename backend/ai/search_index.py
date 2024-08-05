@@ -2,13 +2,19 @@ from ai.scripts.milvus_seach import MilvusSearch
 from ai.scripts.embedding_model import CLIPSingleton
 from ai.configs import *
 from ai.scripts.utils import class2Id
+from ai.scripts.vietnamese_embedding import VieEmbedding_Singleton
 import numpy as np
 from PIL import Image
 from io import BytesIO
 import base64
 
-embedding_model = CLIPSingleton(model_name='ViT-L-14-quickgelu', pretrained='dfn2b', device='cuda')
+print("RUN ai search_index")    
+vie_embedding = VieEmbedding_Singleton()
+print('Load vietnamese embedding model done')
+embedding_model = CLIPSingleton()
+print('Load embedding model done')
 search = MilvusSearch(collection_name='search_collection')
+print('Load search done')
 
 def image_search(image, top_k=500):
     embedding = embedding_model.get_image_embedding(image).cpu().numpy().tolist()
@@ -36,12 +42,15 @@ def search_index(search_input, top_k=500):
         image_data = base64.b64decode(search_input['image']['value'].split(",")[1])
         image = Image.open(BytesIO(image_data))
         image_embedding = embedding_model.get_image_embedding(image).cpu().numpy().astype(np.float32)
+    ocr_embedding = None
+    if search_input['ocr']['value']:
+        ocr_embedding = vie_embedding.get_embedding(search_input['ocr']['value'])
     vectors = {
         'description_vector': [description_embedding] if description_embedding is not None else None,
         'objects': [objects_vector] if objects_vector is not None else None,
         'time': None,
         'similar_image_vector': [image_embedding] if image_embedding is not None else None,
-        'ocr_embedding': None,
+        'ocr_embedding': [ocr_embedding] if ocr_embedding is not None else None,
         'audio_embedding': None,
     }
     fields = {
@@ -57,7 +66,7 @@ def search_index(search_input, top_k=500):
         'objects': search_input['objects']['priority'],
         'time': search_input['time']['priority'],
         'similar_image_vector': search_input['image']['priority'],
-        # 'ocr_embedding': search_input['ocr']['priority']/total_priority if vectors['ocr_embedding'] is not None else 0,
+        'ocr_embedding': search_input['ocr']['priority'],
         # 'audio_embedding': search_input['audio']['priority']/total_priority if vectors['audio_embedding'] is not None else 0,
     }
     res = search.search_hybrid(vectors, fields, priorities, top_k)

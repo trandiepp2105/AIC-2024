@@ -5,7 +5,6 @@ import numpy as np
 import pickle
 from tqdm import tqdm
 from multiprocessing import Pool
-from scripts.embedding_model import CLIP_Embedding
 
 def similar_cosine(v1, v2):
     return np.dot(v1, v2)
@@ -67,6 +66,7 @@ def save_keyframes_and_embedding(video_path, keyframe_folder, embedding_folder, 
     keyframes_path = os.path.join(keyframe_out_dir, f'{video_name}.pickle')
     with open(keyframes_path, 'wb') as f:
         pickle.dump(keyframes, f)
+    print(f'{video_name} done')
     cap.release()
 
 def extract_keyframes(videos_folder, keyframe_folder, embedding_folder, embedding_model, threshold=1e-3, width=1024, height=1024, batch_size=32):
@@ -103,6 +103,8 @@ def extract_videoframes(videos_path, keyframe_folder, frame_folder, width=1024, 
         frame_path = os.path.join(frame_out_dir, f'{frame_cout}.jpg')
         frame.save(frame_path)
         frame_cout += 1
+    cap.release()
+    print(f'{video_name} done')
 
 def extract_from_keyframes(video_folder, keyframe_folder, frame_folder, width=1024, height=1024):
     videos = wfile(video_folder, '.mp4')

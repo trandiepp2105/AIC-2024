@@ -2,7 +2,6 @@ node_modules
 __pycache__
 .migration_flag
 versions
-.env
 models
 frames
 result

@@ -34,23 +34,8 @@ services:
         source: ../backend
         target: /backend
       - type: bind
-        source: ${VIDEOS_PATH}
-        target: ${VIDEOS_VOLUME_DIR}
-      - type: bind
-        source: ${FRAMES_PATH}
-        target: ${FRAMES_VOLUME_DIR}
-      - type: bind
-        source: ${KEYFRAME_FOLDER}
-        target: ${KEYFRAME_VOLUME_DIR}
-      - type: bind
-        source: ${EMBEDDING_FOLDER}
-        target: ${EMBEDDING_VOLUME_DIR}
-      - type: bind
-        source: ${MODELS_FOLDER}
-        target: ${MODELS_VOLUME_DIR}
-      - type: bind
-        source: ${OBJECTS_FOLDER}
-        target: ${OBJECTS_FOLDER_DIR}
+        source: ${HOST_ROOT_DIR}
+        target: ${ROOT_DIR}
     environment:
       DB_HOST: database
     ports:

@@ -2,6 +2,7 @@ from scripts.utils import *
 from scripts.extract_frame import *
 from configs import *
 from OCR.OCR import *
+from scripts.text_embedding import *
 from scripts.embedding_model import CLIP_Embedding, CLIPSingleton
 # from scripts.faiss_search import Faiss_Index
 from tqdm import tqdm
@@ -105,9 +106,26 @@ def extract_text(frame_folder, ocr_folder, threshold_score=0.59):
     OCR_from_folder(frame_folder, output_dir=ocr_folder, threshold_score=threshold_score)
     print("Done.")
 
+def extract_ocr_embedding(ocr_folder, ocr_embedding_folder):
+    if not os.path.exists(ocr_embedding_folder):
+        os.makedirs(ocr_embedding_folder)
+    else:
+        shutil.rmtree(ocr_embedding_folder)
+        os.makedirs(ocr_embedding_folder)
+
+    print("Extracting OCR embeddings...")
+    embedding_foler(ocr_folder, ocr_embedding_folder, batch_size=128)
+    print("Done.")
+
 
 if __name__ == "__main__":
     root_dir = os.getenv("ROOT_DIR")
+
+    model_folder = os.path.join(root_dir, "models")
+
+    if not os.path.exists(model_folder):
+        os.makedirs(model_folder)
+
     videos_folder = os.path.join(root_dir, "videos")
     keyframe_folder = os.path.join(root_dir, "keyframes")
     frame_folder = os.path.join(root_dir, "frames")
@@ -124,4 +142,7 @@ if __name__ == "__main__":
 
     ocr_folder = os.path.join(root_dir, "ocrs")
     threshold_ocr = 0.59
-    extract_text(frame_folder, ocr_folder, threshold_score=threshold_ocr)
+    # extract_text(frame_folder, ocr_folder, threshold_score=threshold_ocr)
+
+    ocr_embedding_folder = os.path.join(root_dir, "ocr_embeddings")
+    extract_ocr_embedding(ocr_folder, ocr_embedding_folder)

@@ -23,7 +23,7 @@ if [ ! -f "$MIGRATION_FLAG" ]; then
   sleep 15
 fi
 
-sleep 5
+sleep 15
 
 echo "Running AI script"
 
