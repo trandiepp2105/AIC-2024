@@ -58,6 +58,7 @@ services:
     restart: "always" # Update restart policy if needed
     depends_on:
       - database
+      - standalone
     deploy:
       resources:
         reservations:

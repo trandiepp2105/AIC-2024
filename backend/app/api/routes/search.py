@@ -95,7 +95,7 @@ def text_search(
     try:
         #model_dump
         search_info = search_request.model_dump()
-        frames_ids = search_index(search_info, 100)
+        frames_ids = search_index(search_info, 500)
 
         frames = crud.get_mul_frames(session, frames_ids)
 
