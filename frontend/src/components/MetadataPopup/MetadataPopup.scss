@@ -1,0 +1,21 @@
+.metadata-popup {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: fit-content;
+  background-color: rgb(170, 211, 228);
+  //   border: 1px solid black;
+  border-radius: 8px;
+  padding: 5px 7px;
+
+  .metadata-popup__item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+
+    .item__title {
+      font-weight: bold;
+    }
+  }
+}

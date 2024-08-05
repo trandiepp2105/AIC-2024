@@ -21,15 +21,31 @@ from ai.search_index import search_index
 
 router = APIRouter()
 
-class OCRModel(BaseModel):
-    priority: int
-    value: Optional[str] = None
 
-class SpeechModel(BaseModel):
-    priority: int
-    value: Optional[str] = None
 
-class RawTextModel(BaseModel):
+# class OCRQueryModel(BaseFrameQueryModel):
+
+# class OCRModel(BaseModel):
+#     priority: int
+#     value: Optional[str] = None
+
+# class SpeechModel(BaseModel):
+#     priority: int
+#     value: Optional[str] = None
+
+# class RawTextModel(BaseModel):
+#     priority: int
+#     value: Optional[str] = None
+
+# class TimeModel(BaseModel):
+#     priority: int
+#     value: Optional[str] = None
+
+# class ImageModel(BaseModel):
+#     priority: int
+#     value: Optional[str] = None
+
+class BaseFrameQueryModel(BaseModel):
     priority: int
     value: Optional[str] = None
 
@@ -43,9 +59,6 @@ class ObjectsModel(BaseModel):
     priority: int
     value: Optional[List[ObjectModel]] = None
 
-class TimeModel(BaseModel):
-    priority: int
-    value: Optional[str] = None
 
 class ColorTableModel(BaseModel):
     column: int
@@ -56,18 +69,15 @@ class ColorsModel(BaseModel):
     priority: int
     value: ColorTableModel
 
-class ImageModel(BaseModel):
-    priority: int
-    value: Optional[str] = None
-
 class SearchRequest(BaseModel):
-    raw_text: RawTextModel = Field(alias='rawText')
+    raw_text: BaseFrameQueryModel = Field(alias='rawText')
+    next_frame_query: BaseFrameQueryModel = Field(alias='nextFrameText')
     objects: ObjectsModel
-    time: TimeModel
+    time: BaseFrameQueryModel
     colors: ColorsModel
-    image: ImageModel
-    speech: SpeechModel
-    ocr: OCRModel
+    image: BaseFrameQueryModel
+    speech: BaseFrameQueryModel
+    ocr: BaseFrameQueryModel
     class Config:
         populate_by_name = True
 
