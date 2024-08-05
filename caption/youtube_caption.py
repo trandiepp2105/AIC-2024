@@ -4,6 +4,9 @@ from youtube_transcript_api import YouTubeTranscriptApi, Transcript
 from youtube_transcript_api._errors import *
 import json
 import os
+from pytube import YouTube
+from tqdm import tqdm
+from math import ceil
 
 
 def get_first_transcript(transcript_list):
@@ -71,7 +74,7 @@ def get_caption_from_list_ids(video_ids,code_lang):
     :param code_lang: code của ngôn ngữ
     :type code_lang: str
 
-    :return: caption của các id 
+    :return: caption của các id , id nào không có caption sẽ có giá trị None
     :rtype: { str:[ { 'text' : str, 'start' : float, 'duration' : float },... ],... }
     """
     
@@ -88,11 +91,10 @@ def get_caption_from_list_ids(video_ids,code_lang):
 
             #nếu vẫn không thể dịch được thì ta chấp nhận không video không có caption theo code_lang
             if translation_result == None :
-                result[id]=[]
+                result[id]=translation_result
             else:
                 result[id]=translation_result.fetch()
     return result
-
 def write_caption_to_json(caption,file_name,out_dir=""):
     """
     Ghi caption vào file json trong out_dir
@@ -104,9 +106,87 @@ def write_caption_to_json(caption,file_name,out_dir=""):
     :param out_dir: path tới thư mục lưu
     :type out_dir: str 
     """
+    
+    # kiểm tra folder đã tồn tại chưa
+    # nếu chưa tồn tại thì tạo folder
+    if out_dir!="" :
+        try:
+            os.makedirs(out_dir)
+        except FileExistsError:
+            pass
+        
     if ".json" not in file_name :
         file_name=file_name + ".json"
     file_path=os.path.join(out_dir,file_name)
 
-    with open(file_path,'w') as json_file:
-        json.dump(caption,json_file,indent=4)
+    with open(file_path,'w',encoding='utf-8') as json_file:
+        json.dump(caption,json_file,ensure_ascii=False,indent=4)
+
+def extract_youtube_id(url):
+    """
+    Lấy ra id của video từ url
+
+    :param url: url của video
+    :type url: str
+
+    :return: id của video
+    :rtype: str 
+    """
+    # tạo đối tượng Youtube từ url
+    yt = YouTube(url)
+    
+    # lấy thuộc tính id của đối tượng và trả về
+    video_id = yt.video_id
+    
+    return video_id
+
+def extract_caption_from_data(data,batch_size=50,out_dir=""):
+    """
+    Làm task chính, từ data, trích xuất ra được các file json chứa caption của các video trong data theo tiếng anh và tiếng việt
+    
+    :param data: data được truyền vào gồm danh sách thông tin của các video
+    :type data: list[{"name" : str, "url" : str }] 
+    :param out_dir: đường dẫn tới thư mục lưu các file
+    :type out_dir: str
+    :param batch_size: kích thước mỗi batch, nếu chỉ có 1 batch thì batch_size=None
+    :type batch_size: int
+    """
+    vi_code='vi'
+    en_code='en'
+    
+    if batch_size == None:
+        batch_size=len(data)
+    total_batches=ceil(len(data)/batch_size)
+    # chạy từng batch
+    for i in range(0,len(data),batch_size):
+        print(f"Batch : {i//batch_size+1}/{total_batches} | Batch size : {min(i+batch_size,len(data))-i}")
+        # lấy ra id của mỗi batch từ url
+        video_ids=[extract_youtube_id(i['url'] )for i in data[i:i+batch_size]]
+        
+        # trích caption tiếng Việt
+        vi_captions=get_caption_from_list_ids(video_ids=video_ids,code_lang=vi_code)
+        # trích caption tiếng Anh
+        en_captions=get_caption_from_list_ids(video_ids=video_ids,code_lang=en_code)
+        
+        # ghi caption vào file json
+        for video in tqdm(data[i:i+batch_size]):
+            # file vi
+            file_name=video['name']+'_vi'
+            write_caption_to_json(caption=vi_captions[extract_youtube_id(video['url'])],file_name=file_name,out_dir=out_dir)
+            
+            # file en
+            file_name=video['name']+'_en'
+            write_caption_to_json(caption=en_captions[extract_youtube_id(video['url'])],file_name=file_name,out_dir=out_dir)
+
+
+
+data=[
+    {"name" : "Đơn Giản Hóa #136 Nói Dối" , "url":"https://youtu.be/Eefj-w-pm-w?si=QqI9pi4ANXBOo_zV"},
+    {'name' : 'Tất cả các biện pháp thao túng tâm lý trong 6 phút' , 'url' : 'https://youtu.be/roTAANuN1Yc?si=vbPe9lYh2Hy4fxBJ'},
+    {'name' : 'Tất cả xu hướng tính dục trong 7 phút' , 'url' : 'https://youtu.be/vWfEHLo-wRM?si=5iM8FQoGUgaUc7Dm'},
+    {'name' : 'Đơn Giản Hóa #134 Thời Tiết' , 'url' : 'https://youtu.be/zKyByQbqjpc?si=DZ8dsD-ACazMtf2H'},
+    {'name' : 'Đơn giản hóa #132 Ronaldo' , 'url' : 'https://youtu.be/TcCNoSGQb2o?si=8-XGSMBKCm-gmWcc'},
+    {'name' : 'Đơn giản hóa #115 Harry Potter' , 'url' : 'https://youtu.be/OAwAK5vjpEo?si=Pgc2NsU19Y8xhHSz'},
+    ]
+
+extract_caption_from_data(data,out_dir="result")
