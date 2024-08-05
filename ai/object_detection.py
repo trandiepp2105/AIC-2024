@@ -1,50 +1,112 @@
 import os
 import torch
-import time
-import csv
 from torchvision import transforms
 from PIL import Image
 import cv2
 import json
 from ultralytics import YOLO
 from configs import FRAME_WIDTH, FRAME_HEIGHT
+import numpy as np
 
 # Hàm để thay đổi kích thước ảnh
 def resize_image(image, width, height):
     return cv2.resize(image, (width, height))
 
-# Hàm để chia ảnh thành các batch
-def divide_batches(folder_path, batch_size):
-    transform = transforms.Compose([
-        transforms.Resize((FRAME_HEIGHT, FRAME_WIDTH)),
-        transforms.ToTensor(),
-    ])
+# # Hàm để chia ảnh thành các batch
+# def divide_batches(folder_path, batch_size):
+#     transform = transforms.Compose([
+#         transforms.Resize((FRAME_HEIGHT, FRAME_WIDTH)),
+#         transforms.ToTensor(),
+#     ])
 
-    # Lấy danh sách các file ảnh
+#     # Lấy danh sách các file ảnh
+#     image_files = [f for f in os.listdir(folder_path) if f.endswith(('.jpg', '.png'))]
+#     num_batches = (len(image_files) + batch_size - 1) // batch_size
+#     batches = []
+
+#     for i in range(num_batches):
+#         batch_files = image_files[i * batch_size:(i + 1) * batch_size]
+
+#         # List để lưu trữ các tensor của từng ảnh trong batch
+#         tensor_list = []
+#         for file_name in batch_files:
+#             image_path = os.path.join(folder_path, file_name)
+#             img = Image.open(image_path)
+#             img_tensor = transform(img)
+#             tensor_list.append((file_name, img_tensor))
+
+#         # Gộp các tensor vào một batch
+#         batches.append(tensor_list)
+
+#     return batches
+
+# # Hàm để thực hiện phát hiện đối tượng trên từng batch ảnh
+# def detect_objects(batch_tensor, model):
+#     tensor_list = [item[1] for item in batch_tensor]
+#     results = model(torch.stack(tensor_list))
+
+#     detected_objects_batch = []
+
+#     # Duyệt qua từng kết quả của từng ảnh trong batch
+#     for i, result in enumerate(results):
+#         detected_objects = {}
+
+#         # Lấy danh sách tên lớp từ mô hình
+#         class_names = model.names
+
+#         # Khởi tạo danh sách rỗng cho mỗi lớp
+#         for class_name in class_names:
+#             detected_objects[model.names[class_name]] = []
+
+#         # Xử lý từng kết quả phát hiện trong ảnh thứ i
+#         for box in result.boxes:
+#             x1, y1, x2, y2 = map(int, box.xyxy[0])
+#             score = float(box.conf[0])
+#             class_id = int(box.cls[0])
+#             class_name = model.names[class_id]
+
+#             # Tạo key nếu chưa tồn tại
+#             if class_name not in detected_objects:
+#                 detected_objects[class_name] = []
+
+#             # Thêm bounding box vào danh sách của lớp class_name
+#             detected_objects[class_name].append({
+#                 'bounding_box': {
+#                     'x1': x1, 'y1': y1,
+#                     'x2': x2, 'y2': y2
+#                 },
+#                 'score': score
+#             })
+
+#         # Thêm danh sách các đối tượng phát hiện được trong ảnh i vào batch kết quả
+#         detected_objects_batch.append(detected_objects)
+
+#     return detected_objects_batch
+
+def divide_batches(folder_path, batch_size):
     image_files = [f for f in os.listdir(folder_path) if f.endswith(('.jpg', '.png'))]
     num_batches = (len(image_files) + batch_size - 1) // batch_size
     batches = []
 
     for i in range(num_batches):
         batch_files = image_files[i * batch_size:(i + 1) * batch_size]
-
-        # List để lưu trữ các tensor của từng ảnh trong batch
-        tensor_list = []
-        for file_name in batch_files:
-            image_path = os.path.join(folder_path, file_name)
-            img = Image.open(image_path)
-            img_tensor = transform(img)
-            tensor_list.append((file_name, img_tensor))
-
-        # Gộp các tensor vào một batch
-        batches.append(tensor_list)
+        batches.append([(file_name, os.path.join(folder_path, file_name)) for file_name in batch_files])
 
     return batches
 
-# Hàm để thực hiện phát hiện đối tượng trên từng batch ảnh
-def detect_objects(batch_tensor, model):
-    tensor_list = [item[1] for item in batch_tensor]
-    results = model(torch.stack(tensor_list))
+def detect_objects(batch_files, model):
+    transform = transforms.Compose([
+        transforms.Resize((FRAME_HEIGHT, FRAME_WIDTH)),
+        transforms.ToTensor(),
+    ])
+
+    tensor_list = []
+    for file_name, file_path in batch_files:
+        img = Image.open(file_path)
+        img_tensor = transform(img)
+        tensor_list.append((file_name, img_tensor))
+
+    results = model(torch.stack([item[1] for item in tensor_list]))
 
     detected_objects_batch = []
 
@@ -84,6 +146,7 @@ def detect_objects(batch_tensor, model):
 
     return detected_objects_batch
 
+
 def process_frames(frame_dir, model, batch_size=16):
     batches = divide_batches(frame_dir, batch_size)
     all_detections = {}
@@ -118,9 +181,9 @@ def process_frames(frame_dir, model, batch_size=16):
 
 def generate_output_json(folder_path, output_directory, models = 'yolov8m.pt', batch_size = 64):
     models = {
-        'models': YOLO(models)
+        'models': YOLO(models, verbose=False)
     }   
-    os.makedirs(output_directory, exist_ok=True)
+    # os.makedirs(output_directory, exist_ok=True)
     # Duyệt qua từng thư mục con trong thư mục gốc
     for subdir_name in os.listdir(folder_path):
         subdir_path = os.path.join(folder_path, subdir_name)
@@ -137,9 +200,11 @@ def generate_output_json(folder_path, output_directory, models = 'yolov8m.pt', b
                     for frame_id, frame_detections in detections_per_frame.items():
                         # Tạo tên file JSON từ tên frame
                         json_filename = f"{frame_id}.json"
+                        numpy_filename = f"{frame_id}.npy"
                         output_json = os.path.join(video_output_directory, json_filename)
-                        vector_count = {i:ob['count'] for i,ob in enumerate(frame_detections.values()) if ob['count'] > 0}
-                        vector_count = {100:1.0}
+                        output_numpy = os.path.join(video_output_directory, numpy_filename)
+                        vector_count = [obj['count'] for obj in frame_detections.values()]
+                        np.save(output_numpy, np.array(vector_count, dtype=np.float32))
                         detection = {
                             'info' : frame_detections,
                             'vector_count' : vector_count

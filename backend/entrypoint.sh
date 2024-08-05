@@ -23,6 +23,8 @@ if [ ! -f "$MIGRATION_FLAG" ]; then
   sleep 15
 fi
 
+sleep 5
+
 echo "Running AI script"
 
 # Chạy script liên quan đến AI

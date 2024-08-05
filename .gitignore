@@ -3,7 +3,13 @@ __pycache__
 .migration_flag
 versions
 .env
-volumes
 models
 frames
 result
+clip_test.ipynb
+*.pt
+*.jpg
+*.png
+*.jpeg
+volumes
+text_detect_restult

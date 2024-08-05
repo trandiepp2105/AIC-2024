@@ -26,6 +26,7 @@ class MilvusSearch:
     
     def search_hybrid(self, vectors, fields, priorities, top_k=100):
         features = ['description_vector', 'objects', 'time', 'similar_image_vector', 'ocr_embedding', 'audio_embedding']
+        print(priorities)
         p = []
         reqs = []
         if vectors['description_vector'] is not None:
@@ -47,8 +48,8 @@ class MilvusSearch:
                 'data' : vectors['objects'],
                 'anns_field' : fields['objects'],
                 'param' : {
-                    'metric_type' : 'IP',
-                    'params' : {}
+                    'metric_type' : 'L2',
+                    'params' : {'nprobe': 92}
                 },
                 'limit' : top_k
             }
@@ -105,7 +106,8 @@ class MilvusSearch:
                 'limit' : top_k
             }
             reqs.append(AnnSearchRequest(**param))
-
+        p = [i/sum(p) for i in p]
+        print(p)
         rerank = WeightedRanker(*p)
         self.collection.load()
         response = self.collection.hybrid_search(
@@ -115,9 +117,10 @@ class MilvusSearch:
             output_fields=['idx']
         )
 
+        print(response[0].distances)
+
         resuit = []
         for res in response[0]:
-            print(res.entity.get('idx'))
             resuit.append(res.entity.get('idx'))
 
         return resuit
