@@ -1,4 +1,5 @@
 import yt_dlp as youtube_dl
+import os
 
 def download_youtube_video(video_info, output_path='.'):
     try:
@@ -35,7 +36,10 @@ videos = [
     {"url": "https://www.youtube.com/watch?v=li9GiFP3cKI", "name": "L37"}
 ]
 # Đường dẫn lưu video
-output_path = r"C:\AIC-2024-DATA\videos"
+output_path = r"/storage/videos"
+
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
 
 for video in videos:
     download_youtube_video(video, output_path)
