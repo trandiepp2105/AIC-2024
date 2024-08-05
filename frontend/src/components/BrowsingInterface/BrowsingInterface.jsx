@@ -5,6 +5,7 @@ import LoadingScreen from "react-loading-screen";
 import get_video from "../../services/get_video";
 import PickedFrames from "../PickedFrames/PickedFrames";
 import MetadataPoup from "../MetadataPopup/MetadataPoup";
+import getVideoName from "../../services/get_video_name";
 function calculateFrameTime(frameNumber, fps = 25) {
   if (fps <= 0) {
     throw new Error("FPS phải lớn hơn 0");
@@ -17,7 +18,10 @@ const BrowsingInterface = ({ frameDisplay, loading = false }) => {
   const [currentFrameIndex, setCurrentFrameIndex] = useState(null);
   const [pickedFrames, setPickedFrames] = useState(new Set());
   const [playVideo, setPlayVideo] = useState(false);
-
+  const [videoMetadata, setVideoMetadata] = useState({
+    video_name: "video_name",
+    frame_number: 0,
+  });
   const initialVideoInfor = { path: "", startTime: 0 };
   const [videoInfor, setVideoInfor] = useState(initialVideoInfor);
   const browsingOptionType = {
@@ -92,6 +96,41 @@ const BrowsingInterface = ({ frameDisplay, loading = false }) => {
     console.log("picked frames: ", pickedFrames);
   }, [pickedFrames]);
 
+  useEffect(() => {
+    console.log("current frame: ", frameDisplay[currentFrameIndex]);
+    const displayVideoName = async (currentFrameIndex) => {
+      try {
+        const frame_infor = frameDisplay[currentFrameIndex];
+        const video_res = await get_video(frame_infor.video_id);
+        if (video_res && video_res.status >= 200 && video_res.status < 300) {
+          // setVideoInfor((prevData) => {
+          //   const newVideoInfor = {
+          //     ...prevData,
+          //     path: video_res.data.path,
+          //     startTime: calculateFrameTime(frame_infor.frame_number),
+          //   };
+          //   return newVideoInfor;
+          // });
+          // console.log("video path: ", video_res.data.path);
+          const videoName = getVideoName(video_res.data.path);
+          console.log("video name: ", videoName);
+          setVideoMetadata((prev) => {
+            const newVideoMetadata = {
+              ...prev,
+              video_name: videoName,
+              frame_number: frameDisplay[currentFrameIndex].frame_number,
+            };
+            return newVideoMetadata;
+          });
+        } else {
+          console.error("Error fetching video");
+        }
+      } catch (error) {
+        console.error("Get video failed:", error);
+      }
+    };
+    displayVideoName(currentFrameIndex);
+  }, [currentFrameIndex, frameDisplay]);
   if (loading) {
     return (
       <div className="browsing-interface">
@@ -108,7 +147,12 @@ const BrowsingInterface = ({ frameDisplay, loading = false }) => {
   return (
     <>
       <div className="browsing-interface">
-        {/* {<MetadataPoup />} */}
+        {currentFrameIndex && (
+          <MetadataPoup
+            videoName={videoMetadata.video_name}
+            frameNumber={videoMetadata.frame_number}
+          />
+        )}
         {frameDisplay && frameDisplay.length > 0 ? (
           <div className="browsing-option">
             <button

@@ -1,7 +1,8 @@
 .metadata-popup {
   position: absolute;
-  top: 0;
-  right: 0;
+  bottom: 5px;
+  left: 7px;
+  z-index: 10000;
   width: 150px;
   height: fit-content;
   background-color: rgb(170, 211, 228);
