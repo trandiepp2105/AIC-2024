@@ -5,7 +5,7 @@ def download_youtube_video(video_info, output_path='.'):
     try:
         ydl_opts = {
             'format': 'best[height<=1440]', # Chất lượng video tải về
-            'outtmpl': f'{output_path}/{video_info['name']}.%(ext)s', # Đường dẫn lưu video
+            "outtmpl": f"{output_path}/{video_info['name']}.%(ext)s", # Đường dẫn lưu video
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([video_info['url']])
