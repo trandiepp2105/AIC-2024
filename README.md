@@ -32,6 +32,10 @@ sudo nano /etc/ssh/sshd_config
 
 PubkeyAuthentication yes
 
+# kiểm tra dòng này được mở comment chưa
+
+AuthorizedKeysFile .ssh/authorized_keys
+
 # Thiết lập quyền thực thi
 
 chmod +x deploy.sh
