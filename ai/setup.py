@@ -135,14 +135,14 @@ if __name__ == "__main__":
     width = 640
     height = 480
 
-    # keyframe_and_embedding(videos_folder, keyframe_folder, embedding_folder, threshold=threshold_keyframe, width=width, height=height, batch_size=256)
+    keyframe_and_embedding(videos_folder, keyframe_folder, embedding_folder, threshold=threshold_keyframe, width=width, height=height, batch_size=256)
 
     object_folder = os.path.join(root_dir, "objects")
-    # object_detection(frame_folder, object_folder, models='yolov8m.pt', batch_size=64)
+    object_detection(frame_folder, object_folder, models='yolov8m.pt', batch_size=64)
 
     ocr_folder = os.path.join(root_dir, "ocrs")
     threshold_ocr = 0.59
-    # extract_text(frame_folder, ocr_folder, threshold_score=threshold_ocr)
+    extract_text(frame_folder, ocr_folder, threshold_score=threshold_ocr)
 
     ocr_embedding_folder = os.path.join(root_dir, "ocr_embeddings")
     extract_ocr_embedding(ocr_folder, ocr_embedding_folder)

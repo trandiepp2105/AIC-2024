@@ -28,7 +28,7 @@ sleep 15
 echo "Running AI script"
 
 # Chạy script liên quan đến AI
-python ./ai/database/database.py
+# python ./ai/database/database.py
 
 echo "Starting FastAPI server"
 

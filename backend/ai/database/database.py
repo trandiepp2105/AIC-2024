@@ -30,15 +30,18 @@ connections.connect("default", host="milvus-standalone", port="19530")
 
 collection_name = "search_collection"
 
-if collection_name in utility.list_collections():
-    try:
-        collection = Collection(collection_name)
-        collection.drop()
-    except Exception as e:
-        print(f"Error: {e}")
+try:
+    collections = utility.list_collections()
+
+    for collection in collections:
+        utility.drop_collection(collection)
+except Exception as e:
+    print(f"Error: {e}")
 
 fields = [
     FieldSchema(name="idx", dtype=DataType.INT64, is_primary=True),
+    FieldSchema(name="video_id", dtype=DataType.INT64),
+    FieldSchema(name="frame_id", dtype=DataType.INT64),
     FieldSchema(name="frame_embedding", dtype=DataType.FLOAT_VECTOR, dim=768),
     FieldSchema(name="object_detection", dtype=DataType.FLOAT_VECTOR, dim=80),
     FieldSchema(name="ocr_embedding", dtype=DataType.FLOAT_VECTOR, dim=768)
@@ -70,6 +73,24 @@ collection.create_index(field_name="frame_embedding", index_params=index_params)
 collection.create_index(field_name="object_detection", index_params=object_detection_index_params)
 collection.create_index(field_name="ocr_embedding", index_params=ocr_embedding_index_params)
 
+fields2 = [
+    FieldSchema(name="idx", dtype=DataType.INT64, is_primary=True),
+    FieldSchema(name="frame_embedding", dtype=DataType.FLOAT_VECTOR, dim=768),
+    FieldSchema(name="object_detection", dtype=DataType.FLOAT_VECTOR, dim=80),
+    FieldSchema(name="ocr_embedding", dtype=DataType.FLOAT_VECTOR, dim=768),
+    FieldSchema(name="before_frame_embedding", dtype=DataType.FLOAT_VECTOR, dim=768),
+]
+
+schema2 = CollectionSchema(fields=fields2)
+collection2 = Collection("search_collection2", schema=schema2)
+
+collection2.create_index(field_name="frame_embedding", index_params=index_params)
+collection2.create_index(field_name="object_detection", index_params=object_detection_index_params)
+collection2.create_index(field_name="ocr_embedding", index_params=ocr_embedding_index_params)
+collection2.create_index(field_name="before_frame_embedding", index_params=index_params)
+
+collection2.load()
+
 def get_video_frame(path):
     paths = path.split('/')
     video_id = paths[-2]
@@ -91,7 +112,7 @@ def get_ocr_embedding(video_id, frame_id):
     ocr_embedding = np.load(ocr_embedding_path)
     return ocr_embedding
     
-entity = [[],[],[],[]]
+entity = [[],[],[],[],[],[]]
 
 count = 0
 mut = 100
@@ -102,19 +123,22 @@ for row in table:
     object_detection = get_object_detection(video_id, frame_id)
     ocr_embedding = get_ocr_embedding(video_id, frame_id)
     entity[0].append(int(row.id))
-    entity[1].append(embedding)
-    entity[2].append(object_detection)
-    entity[3].append(ocr_embedding)
+    entity[1].append(int(row.video_id))
+    entity[2].append(int(row.frame_number))
+    entity[3].append(embedding)
+    entity[4].append(object_detection)
+    entity[5].append(ocr_embedding)
 
     count += 1
     if count % mut == 0:
         print(f"Inserting {mut} frames")
         collection.insert(entity)
-        entity = [[],[],[],[]]
+        entity = [[],[],[],[],[],[]]
 
 collection.insert(entity)
 
 collection.load()
+collection.release()
 
 connections.disconnect("default")
 
