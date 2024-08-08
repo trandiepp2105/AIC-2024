@@ -1,7 +1,5 @@
 # AIC-2024
 
-sed -i 's/\r$//' entrypoint.sh
-
 # Cấu hình SSH server
 
 # đăng nhập vào server
@@ -14,15 +12,17 @@ ssh $SERVER_USER@$SERVER_IP
 
 sudo apt-get update
 
-sudo apt upgrade
-
-# khởi động lại server
-
-sudo reboot
-
 # đợi 1-2p
 
 # đăng nhập lại server
+
+# kiểm tra nvidia driver
+
+nvidia-smi
+
+# kiểm tra vidia-container
+
+nvidia-container-cli --version
 
 # mở file cấu hình
 
