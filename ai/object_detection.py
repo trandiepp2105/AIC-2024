@@ -179,44 +179,41 @@ def process_frames(frame_dir, model, batch_size=16):
 
     return all_detections
 
-def generate_output_json(folder_path, output_directory, models = 'yolov8m.pt', batch_size = 64):
-    models = {
-        'models': YOLO(models, verbose=False)
-    }   
-    # os.makedirs(output_directory, exist_ok=True)
-    # Duyệt qua từng thư mục con trong thư mục gốc
+def generate_output_json(folder_path, output_directory, model_path='yolov8m.pt', batch_size=64):
+    MODEL_DIR = 'model'
+    MODEL_PATH = os.path.join(MODEL_DIR, model_path)
+    
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    
+    model = YOLO(model_path, verbose=False)
+    model.save(MODEL_PATH)
+  
     for subdir_name in os.listdir(folder_path):
         subdir_path = os.path.join(folder_path, subdir_name)
         if os.path.isdir(subdir_path):
-            # Tạo thư mục cho từng video trong thư mục output
             video_output_directory = os.path.join(output_directory, subdir_name)
             os.makedirs(video_output_directory, exist_ok=True)
 
-            for model_name, model in models.items():
-                # Thực hiện object detection trên tất cả các hình ảnh trong thư mục con
-                detections_per_frame = process_frames(subdir_path, model, batch_size)
+            detections_per_frame = process_frames(subdir_path, model, batch_size)
 
-                if detections_per_frame:
-                    for frame_id, frame_detections in detections_per_frame.items():
-                        # Tạo tên file JSON từ tên frame
-                        json_filename = f"{frame_id}.json"
-                        numpy_filename = f"{frame_id}.npy"
-                        output_json = os.path.join(video_output_directory, json_filename)
-                        output_numpy = os.path.join(video_output_directory, numpy_filename)
-                        vector_count = [obj['count'] for obj in frame_detections.values()]
-                        np.save(output_numpy, np.array(vector_count, dtype=np.float32))
-                        detection = {
-                            'info' : frame_detections,
-                            'vector_count' : vector_count
-                        }
-                        # Ghi danh sách các đối tượng được phát hiện vào file JSON
-                        with open(output_json, 'w') as f:
-                            json.dump(detection, f, indent=4)
-                            # print(f"Saved detections for frame {frame_id} in {json_filename}")
+            if detections_per_frame:
+                for frame_id, frame_detections in detections_per_frame.items():
+                    json_filename = f"{frame_id}.json"
+                    numpy_filename = f"{frame_id}.npy"
+                    output_json = os.path.join(video_output_directory, json_filename)
+                    output_numpy = os.path.join(video_output_directory, numpy_filename)
+                    vector_count = [obj['count'] for obj in frame_detections.values()]
+                    np.save(output_numpy, np.array(vector_count, dtype=np.float32))
+                    detection = {
+                        'info': frame_detections,
+                        'vector_count': vector_count
+                    }
+                    with open(output_json, 'w') as f:
+                        json.dump(detection, f, indent=4)
 
                 torch.cuda.empty_cache()
 
-    # print("Object detection results have been saved to JSON files.")
+    print("Object detection results have been saved to JSON files.")
 
 # if __name__ == '__main__':
 #     # Thư mục chứa các frame cần phát hiện đối tượng
