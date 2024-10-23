@@ -34,9 +34,7 @@ Some pictures of the system:
 
 - **Crop and select frames:** The input video is cut into consecutive frames. Duplicate frames or frames without new information are discarded based on the similarity of the embedding vector.
 - **Embedding and comparison:** Use CLIP and CLIP4Clip models to represent frames and queries as embedding vectors. The similarity between the query and frames is calculated based on `cosine similarity`.
-  $$
-  \text{cosine similarity}(A, B) = \frac{A \cdot B}{\|A\| \|B\|}
-  $$
+  ![Cosine Similarity](assets/cosine_similarity.png)
 
 ### 3. Extract Information from Video
 
