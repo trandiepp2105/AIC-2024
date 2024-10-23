@@ -51,5 +51,3 @@ Some pictures of the system:
 ### 4. Reranking and Query Combining
 
 - The system performs reranking of search results based on different query types (text, image, OCR, voice). This ensures that results with the highest similarity to the user's query are returned.
-
-### 5. System Implementation
