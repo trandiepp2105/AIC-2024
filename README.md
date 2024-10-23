@@ -23,36 +23,10 @@ The system consists of a frontend built with **ReactJS** and a backend implement
 - **Backend (FastAPI):** Manages the processing of queries, communicates with the deep learning models, and handles interactions with the vector database (Milvus) and Elasticsearch for efficient data retrieval.
 
 Some pictures of the system:
-
-<div style="width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;">
-  <div style="flex: 1 1 calc(33.33% - 32px); max-width: calc(33.33% - 32px);">
-    <img src="assets/capture-1.png" alt="Image 1" style="width: 100%; border-radius: 8px;">
-  </div>
-  <div style="flex: 1 1 calc(33.33% - 32px); max-width: calc(33.33% - 32px);">
-    <img src="assets/capture-2.jpeg" alt="Image 2" style="width: 100%; border-radius: 8px;">
-  </div>
-  <div style="flex: 1 1 calc(33.33% - 32px); max-width: calc(33.33% - 32px);">
-    <img src="assets/capture-3.jpeg" alt="Image 3" style="width: 100%; border-radius: 8px;">
-  </div>
-  <div style="flex: 1 1 calc(33.33% - 32px); max-width: calc(33.33% - 32px);">
-    <img src="assets/capture-4.jpeg" alt="Image 4" style="width: 100%; border-radius: 8px;">
-  </div>
-  <div style="flex: 1 1 calc(33.33% - 32px); max-width: calc(33.33% - 32px);">
-    <img src="assets/capture-5.jpeg" alt="Image 5" style="width: 100%; border-radius: 8px;">
-  </div>
-  <div style="flex: 1 1 calc(33.33% - 32px); max-width: calc(33.33% - 32px);">
-    <img src="assets/capture-6.png" alt="Image 6" style="width: 100%; border-radius: 8px;">
-  </div>
-  <div style="flex: 1 1 calc(33.33% - 32px); max-width: calc(33.33% - 32px);">
-    <img src="assets/capture-8.jpeg" alt="Image 7" style="width: 100%; border-radius: 8px;">
-  </div>
-  <div style="flex: 1 1 calc(33.33% - 32px); max-width: calc(33.33% - 32px);">
-    <img src="assets/capture-9.jpeg" alt="Image 8" style="width: 100%; border-radius: 8px;">
-  </div>
-  <div style="flex: 1 1 calc(33.33% - 32px); max-width: calc(33.33% - 32px);">
-    <img src="assets/capture-10.jpeg" alt="Image 9" style="width: 100%; border-radius: 8px;">
-  </div>
-</div>
+| ![Image 1](assets/capture-1.png) | ![Image 2](assets/capture-2.jpeg) | ![Image 3](assets/capture-3.jpeg) |
+| ---------------------------------- | ---------------------------------- | ---------------------------------- |
+| ![Image 4](assets/capture-4.jpeg) | ![Image 5](assets/capture-5.jpeg) | ![Image 6](assets/capture-6.png) |
+| ![Image 7](assets/capture-8.jpeg) | ![Image 8](assets/capture-9.jpeg) | ![Image 9](assets/capture-10.jpeg) |
 
 ## Implementation process
 
