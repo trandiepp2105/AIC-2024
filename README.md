@@ -36,12 +36,12 @@ Some pictures of the system:
 - **Embedding and comparison:** Use CLIP and CLIP4Clip models to represent frames and queries as embedding vectors. The similarity between the query and frames is calculated based on `cosine similarity`.
   <!-- ![Cosine Similarity](assets/cosine_similarity.png) -->
 
-### 3. Extract Information from Video
+### 2. Extract Information from Video
 
 - **OCR (Optical Character Recognition):** Use OCR to extract text from video frames, adding more information to the frames, increasing search accuracy.
 - **Voice recognition:** Extract subtitles from YouTube videos to add semantic information to video content, improving the searchability of videos with dialogue.
 
-### 2. Vector Database and Query Acceleration
+### 3. Vector Database and Query Acceleration
 
 - **Milvus:** The system uses Milvus to store and query frame embedding vectors. Milvus supports efficient index creation, which reduces query time and speeds up result return.
 - **Elasticsearch:** In addition to Milvus, the system uses Elasticsearch for indexing and searching OCR (Optical Character Recognition) text and transcribed voice data. This enables fast retrieval of textual information extracted from video frames and audio, enhancing the search capabilities for videos containing specific text or spoken content.
