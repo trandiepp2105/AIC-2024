@@ -24,7 +24,7 @@ The system consists of a frontend built with **ReactJS** and a backend implement
 
 Some pictures of the system:
 
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;">
+<div style="width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;">
   <div style="flex: 1 1 calc(33.33% - 32px); max-width: calc(33.33% - 32px);">
     <img src="assets/capture-1.png" alt="Image 1" style="width: 100%; border-radius: 8px;">
   </div>
