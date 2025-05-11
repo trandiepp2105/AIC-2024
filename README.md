@@ -37,15 +37,16 @@ This project introduces an advanced **video retrieval system** designed to accur
 
 Our solution is architected with a user-centric frontend and a powerful backend, ensuring a seamless and effective user experience:
 
-*   🎨 **Frontend (ReactJS):**
-    *   Delivers an intuitive and interactive user interface.
-    *   Allows users to effortlessly submit queries through text input, image uploads, or audio recordings.
-    *   Presents search results in a clear, organized, and visually engaging manner.
+- 🎨 **Frontend (ReactJS):**
 
-*   ⚙️ **Backend (FastAPI):**
-    *   Serves as the core processing engine, intelligently handling multi-modal queries.
-    *   Orchestrates communication with sophisticated deep learning models for feature extraction and understanding.
-    *   Manages high-performance interactions with **Milvus** (for vector similarity search) and **Elasticsearch** (for textual data indexing and search), ensuring rapid and accurate data retrieval.
+  - Delivers an intuitive and interactive user interface.
+  - Allows users to effortlessly submit queries through text input, image uploads, or audio recordings.
+  - Presents search results in a clear, organized, and visually engaging manner.
+
+- ⚙️ **Backend (FastAPI):**
+  - Serves as the core processing engine, intelligently handling multi-modal queries.
+  - Orchestrates communication with sophisticated deep learning models for feature extraction and understanding.
+  - Manages high-performance interactions with **Milvus** (for vector similarity search) and **Elasticsearch** (for textual data indexing and search), ensuring rapid and accurate data retrieval.
 
 ---
 
@@ -80,59 +81,27 @@ A glimpse into our system's interface and capabilities:
 Our system employs a multi-stage process to deliver accurate and fast video retrieval:
 
 ### 1. Intelligent Video Processing & Frame Selection
-*   **Frame Segmentation & Deduplication:** Input videos are meticulously segmented into constituent frames. To optimize processing and storage, redundant or non-informative frames are intelligently discarded by analyzing the similarity of their embedding vectors.
-*   **Embedding Generation & Similarity Matching:** We utilize state-of-the-art models like **CLIP** and **CLIP4Clip** to transform both video frames and user queries into rich, high-dimensional embedding vectors. The relevance between a query and video frames is then precisely quantified using `cosine similarity`.
-    <p align="center">
-      <img src="assets/cosine_similarity.png" alt="Cosine Similarity Calculation" width="400"/>
-      <br><sub><em>Conceptual representation of Cosine Similarity.</em></sub>
-    </p>
+
+- **Frame Segmentation & Deduplication:** Input videos are meticulously segmented into constituent frames. To optimize processing and storage, redundant or non-informative frames are intelligently discarded by analyzing the similarity of their embedding vectors.
+- **Embedding Generation & Similarity Matching:** We utilize state-of-the-art models like **CLIP** and **CLIP4Clip** to transform both video frames and user queries into rich, high-dimensional embedding vectors. The relevance between a query and video frames is then precisely quantified using `cosine similarity`.
+  <p align="center">
+    <img src="assets/cosine_similarity.png" alt="Cosine Similarity Calculation" width="400"/>
+    <br><sub><em>Conceptual representation of Cosine Similarity.</em></sub>
+  </p>
 
 ### 2. Multi-Modal Information Extraction
-*   **Optical Character Recognition (OCR):** OCR technology is employed to extract textual information directly from video frames. This enriches the metadata associated with each frame, significantly boosting search accuracy for queries containing specific text.
-*   **Automated Speech Recognition (ASR):** For videos with spoken content (e.g., from YouTube), subtitles or transcriptions are extracted. This adds a crucial layer of semantic information, enabling effective retrieval based on spoken dialogue.
+
+- **Optical Character Recognition (OCR):** OCR technology is employed to extract textual information directly from video frames. This enriches the metadata associated with each frame, significantly boosting search accuracy for queries containing specific text.
+- **Automated Speech Recognition (ASR):** For videos with spoken content (e.g., from YouTube), subtitles or transcriptions are extracted. This adds a crucial layer of semantic information, enabling effective retrieval based on spoken dialogue.
 
 ### 3. High-Performance Data Indexing & Retrieval
-*   **Milvus Vector Database:** The core of our similarity search relies on Milvus, a highly scalable and efficient open-source vector database. Milvus stores and indexes the embedding vectors of video frames, facilitating rapid similarity searches through optimized indexing structures (e.g., HNSW, IVF_FLAT), which dramatically reduces query latency.
-*   **Elasticsearch Integration:** Complementing Milvus, Elasticsearch is utilized for robust indexing and searching of textual data extracted via OCR and ASR. This dual-database approach allows for powerful hybrid searches, combining semantic vector similarity with keyword-based textual matching.
+
+- **Milvus Vector Database:** The core of our similarity search relies on Milvus, a highly scalable and efficient open-source vector database. Milvus stores and indexes the embedding vectors of video frames, facilitating rapid similarity searches through optimized indexing structures (e.g., HNSW, IVF_FLAT), which dramatically reduces query latency.
+- **Elasticsearch Integration:** Complementing Milvus, Elasticsearch is utilized for robust indexing and searching of textual data extracted via OCR and ASR. This dual-database approach allows for powerful hybrid searches, combining semantic vector similarity with keyword-based textual matching.
 
 ### 4. Advanced Result Reranking & Query Fusion
-*   To provide the most pertinent results, the system incorporates a sophisticated **reranking mechanism**. Search results originating from different query modalities (text, image, OCR, ASR) and feature extractors are intelligently combined and re-ordered, ensuring that the final output optimally aligns with the user's intent.
 
----
-
-## 🚀 Getting Started (Optional - Add if you want others to run it)
-
-<!--
-Instructions on how to set up and run the project locally.
-Include:
-- Prerequisites (Python version, Node.js version, Docker, etc.)
-- Backend setup (virtual environment, dependencies, running the server)
-- Frontend setup (dependencies, running the development server)
-- Environment variables configuration
--->
-
----
-
-## 🤝 Contributing (Optional - Add if open to contributions)
-
-<!--
-Information on how others can contribute to the project.
-- Fork the repository
-- Create a new branch
-- Make changes
-- Submit a pull request
--->
-
----
-
-## 📜 License (Optional - Add if you have a license)
-
-<!--
-This project is licensed under the [NAME OF LICENSE] - see the LICENSE.md file for details.
-Example: MIT License
--->
-
----
+- To provide the most pertinent results, the system incorporates a sophisticated **reranking mechanism**. Search results originating from different query modalities (text, image, OCR, ASR) and feature extractors are intelligently combined and re-ordered, ensuring that the final output optimally aligns with the user's intent.
 
 <p align="center">
   <em>Thank you for exploring our AI Challenge 2024 project!</em>
