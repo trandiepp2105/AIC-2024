@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap");
+
+:root {
+  /* --primary-active-bg: #f6b380; */
+  /* --primary-active-bg: #4a4c51s; */
+  --primary-active-bg: #777879;
+  --primary-active-color: #f8f3f3;
+}
+.notification-container {
+  /* Ví dụ: Căn chỉnh thông báo ở góc dưới bên phải */
+  top: 80px !important;
+  bottom: auto !important;
+  right: 0 !important;
+  left: auto !important;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Roboto Slab", serif;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+img {
+  width: 100%;
+  height: auto;
+}

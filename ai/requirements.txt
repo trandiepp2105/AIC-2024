@@ -1,0 +1,17 @@
+pygments
+pillow
+requests
+tqdm
+pandas
+matplotlib
+ultralytics
+opencv-python
+open_clip_torch
+vietocr
+transformers
+
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+requests

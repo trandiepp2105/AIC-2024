@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  cloudserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cloudserver
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: .
+        target: /cloudserver
+      - type: bind
+        source: ${HOST_ROOT_DIR}
+        target: ${ROOT_DIR}
+    env_file:
+      - ./.env
+    networks:
+      - localnet
+
+networks:
+  localnet:
+    driver: bridge

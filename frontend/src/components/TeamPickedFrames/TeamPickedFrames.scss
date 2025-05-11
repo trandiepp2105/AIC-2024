@@ -1,0 +1,188 @@
+.wrapper-video-player {
+  width: 100%;
+  height: 100%;
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .close-button {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 10000;
+    cursor: pointer !important;
+    width: fit-content;
+    height: fit-content;
+
+    &:active {
+      filter: brightness(80%);
+    }
+  }
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+  }
+}
+
+.team-picked-frames {
+  width: 100%;
+  flex-shrink: 1;
+  .submit-confirm {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    .overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background-color: black;
+      opacity: 0.5;
+    }
+
+    .confirm-popup {
+      position: absolute;
+      z-index: 1000000;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      width: 30%;
+      min-width: 380px;
+      aspect-ratio: 380 / 180 !important;
+      border-radius: 7px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .confirm-popup__header {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        .close-button {
+          font-size: 20px;
+          font-weight: bold;
+          color: #333;
+          cursor: pointer;
+          border: none;
+          background: none;
+          outline: none;
+        }
+
+        .close-button:hover {
+          color: red;
+        }
+      }
+
+      .confirm-popup__content {
+        padding: 30px 10px;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+
+        .query-index {
+          margin: 0 5px;
+          font-weight: bold;
+          color: orangered;
+          font-size: 25px;
+        }
+      }
+
+      .confirm-popup__buttons {
+        padding: 10px;
+        display: flex;
+        justify-content: end;
+        gap: 15px;
+
+        .confirm-button {
+          padding: 7px 15px;
+          color: white;
+          font-weight: bold;
+          outline: none;
+          border: none;
+          border-radius: 7px;
+          align-items: center;
+          text-align: center;
+          cursor: pointer;
+          // opacity: 1 !important;
+          &:hover {
+            filter: brightness(80%);
+          }
+        }
+
+        .confirm-button--no {
+          background-color: #616776;
+        }
+
+        .confirm-button--yes {
+          background-color: #e28f2f;
+        }
+      }
+    }
+  }
+
+  .picked-frames-container {
+    width: 100%;
+    // height: 100vh;
+    max-height: 100%;
+    // overflow: visible;
+    overflow-y: auto;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    .frame-item {
+      position: relative;
+
+      &:hover {
+        .cus-submit-checkbox {
+          display: block !important;
+        }
+      }
+      .cus-submit-checkbox,
+      .cus-submit-checkbox--active {
+        height: 18px;
+        width: 18px;
+        background: #e6e6e6;
+        // background: #38cf9a;
+        border: 1px solid #000000;
+        border-radius: 0px;
+        display: none;
+        position: absolute;
+        top: 2px;
+        right: 2px;
+      }
+
+      .cus-submit-checkbox--active {
+        display: block !important;
+        background-color: rgb(44, 183, 243);
+        &::after {
+          box-sizing: unset;
+          content: "";
+          position: absolute;
+          display: block;
+          left: 6.5px;
+          top: 2.5px;
+          width: 3px;
+          height: 8px;
+          border: solid #ffffff;
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,376 @@
+.search-interface {
+  width: 100%;
+  height: calc(100% - 35px);
+  padding-top: 7px;
+  .container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    .padding-box {
+      width: 100%;
+      min-height: 50px !important;
+      // background-color: red;
+      display: block;
+    }
+    &::-webkit-scrollbar {
+      display: none; /* Ẩn thanh cuộn */
+    }
+
+    .place-query-index {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 5px;
+      color: rgb(64, 63, 63);
+      label {
+        margin-right: 5px;
+      }
+
+      .query-index-input {
+        outline: none;
+        width: 40px;
+        height: 20px;
+        padding-left: 5px;
+      }
+
+      .query-mode {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: none;
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 55px; /* Chiều rộng 50px */
+          height: 22px; /* Chiều cao 22px */
+          cursor: pointer;
+
+          .text-mode,
+          .QA-mode {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            font-size: 10px;
+            transition: opacity 0.4s ease;
+          }
+
+          .text-mode {
+            right: 5px;
+            color: black;
+          }
+
+          .QA-mode {
+            left: 5px;
+            right: 0;
+            color: white;
+            letter-spacing: 2px;
+            opacity: 0; /* Mặc định ẩn QA-mode khi không check */
+          }
+
+          input {
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            position: absolute;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            appearance: none;
+          }
+
+          input:not(:checked) ~ .QA-mode {
+            opacity: 0 !important; /* Ẩn QA-mode khi không check */
+          }
+
+          input:checked ~ .QA-mode {
+            opacity: 1 !important; /* Hiển thị QA-mode khi được check */
+          }
+
+          input:checked ~ .text-mode {
+            opacity: 0 !important; /* Ẩn text-mode khi được check */
+          }
+
+          .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #a7bfd6;
+            transition: 0.4s;
+            border-radius: 25px; /* Bán kính bo góc phù hợp với chiều cao 22px */
+
+            &:before {
+              position: absolute;
+              content: "";
+              height: 18px; /* Chiều cao bóng trượt */
+              width: 18px; /* Chiều rộng bóng trượt */
+              border-radius: 9px; /* Bán kính bo góc của bóng trượt */
+              left: 2px; /* Đặt bóng trượt ở bên trái */
+              bottom: 2px; /* Điều chỉnh vị trí bóng trượt để căn giữa */
+              z-index: 2;
+
+              background-color: rgb(96, 93, 93);
+              transition: 0.4s;
+            }
+          }
+
+          input:checked + .slider {
+            background-color: #47484a;
+
+            &::before {
+              background-color: #bcb9b9 !important;
+            }
+          }
+
+          // input:focus + .slider {
+          //   box-shadow: 0 0 1px #183153;
+          // }
+
+          input:checked + .slider:before {
+            transform: translateX(
+              33px
+            ); /* Điều chỉnh khoảng cách di chuyển của bóng trượt */
+          }
+        }
+      }
+    }
+
+    .wrapper-raw-text-area {
+      width: 100%;
+      .raw-text-area {
+        min-width: 100%;
+        max-width: 100%;
+        min-height: 100px;
+        border: 1px solid black;
+        border-radius: 3px;
+        outline: none;
+        padding: 5px;
+      }
+    }
+
+    .wrapper-add-raw-text-area {
+      width: 100%;
+      display: flex;
+      gap: 10px;
+
+      button {
+        padding: 2px 5px;
+        background-color: #dee8f1;
+        outline: none;
+        border: 1px solid black;
+        border-radius: 3px;
+        cursor: pointer;
+
+        &:hover {
+          filter: brightness(90%);
+        }
+        &:active {
+          filter: brightness(80%);
+        }
+      }
+      .add-raw-text-btn {
+        flex: 1;
+      }
+
+      .delete-raw-text-btn {
+        width: fit-content;
+      }
+    }
+    .wrapper-search-by-task-area {
+      width: 100%;
+
+      .task-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        margin-bottom: 3px;
+        position: relative;
+        margin-top: 5px;
+        .wrapper-list-class {
+          width: 75%;
+          position: absolute;
+          top: 25px;
+          right: 0;
+          z-index: 10000;
+          height: 300px;
+          background-color: white;
+          border-radius: 4px;
+        }
+        .label-task {
+          width: 25%;
+          margin-right: 2px;
+          font-size: 13px;
+          font-weight: bold;
+        }
+
+        .task-content {
+          width: 75%;
+          outline: none;
+          padding: 2px;
+          padding-top: 0;
+        }
+      }
+    }
+
+    .button-block {
+      position: fixed;
+      z-index: 100;
+      bottom: 10px;
+      left: 5px;
+      width: calc(20% - 10px);
+      display: flex;
+      justify-content: space-between;
+      & > button {
+        width: calc((100% - 10px) / 2);
+        padding: 7px;
+        margin: 5px 0;
+        outline: none;
+        border: none;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: medium;
+        font-weight: bold;
+        color: black;
+      }
+      .search-button {
+        // background-color: rgb(83, 170, 224);
+        background-color: #777879;
+        color: var(--primary-active-color);
+        &:hover {
+          filter: brightness(90%);
+        }
+
+        &:active {
+          filter: brightness(100%);
+        }
+      }
+
+      .clear-button {
+        background-color: rgb(227, 112, 118);
+
+        &:hover {
+          filter: brightness(90%);
+        }
+
+        &:active {
+          filter: brightness(100%);
+        }
+      }
+    }
+
+    .color-zone {
+      box-sizing: border-box;
+      width: 100%;
+
+      .content {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        box-sizing: border-box;
+        border: 1px dashed black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        .image-data {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          &:focus-visible {
+            outline: none;
+            border: none;
+          }
+          img {
+            height: 100%;
+            object-fit: contain;
+          }
+        }
+      }
+    }
+
+    .wrapper-color-picker {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+  }
+}
+
+.picker-button-option {
+  display: flex;
+  // align-items: end;
+  position: relative;
+  justify-content: space-between;
+
+  .group-translate-btn {
+    display: flex;
+    gap: 10px;
+
+    button {
+      cursor: pointer;
+      &:hover {
+        filter: brightness(90%);
+      }
+    }
+
+    .translate-btn {
+      border: none;
+      font-weight: bold;
+      padding: 2px 7px !important;
+      &:active {
+        // filter: brightness(80%);
+        background-color: #66cdf9 !important;
+        color: black;
+      }
+    }
+
+    .is-translating {
+      background-color: #66cdf9 !important;
+      color: black;
+    }
+  }
+  button {
+    outline: none;
+    padding: 3px 7px;
+    font-weight: bold;
+    border-radius: 3px;
+    border: none;
+    outline: none;
+    font-size: 10px;
+    // background-color: rgb(236, 183, 118);
+    background-color: #777879;
+    color: rgb(241, 239, 239);
+  }
+}
+.current-frame-trans {
+  // margin: 2px 0;
+  margin-top: 5px;
+  margin-bottom: 2px;
+}
+.color-zone-option {
+  display: flex;
+  justify-content: start;
+  gap: 5px;
+
+  button {
+    background-color: #caccce;
+    color: rgb(66, 65, 65);
+    font-weight: normal;
+  }
+  .actice-color-zone-btn {
+    background-color: #777879;
+    color: rgb(237, 233, 233);
+    font-weight: bold !important;
+  }
+}

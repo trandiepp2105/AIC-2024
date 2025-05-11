@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  ai:
+    build: 
+      context: ../extract_keyframe
+      dockerfile: Dockerfile
+    container_name: ai
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - ./.env
+    volumes:
+      - type: bind
+        source: ../extract_keyframe
+        target: /extract_keyframe
+      - type: bind
+        source: ${HOST_ROOT_DIR}
+        target: ${ROOT_DIR}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    # runtime: nvidia
+    networks:
+      - localnet
+
+networks:
+  localnet:
+    driver: bridge

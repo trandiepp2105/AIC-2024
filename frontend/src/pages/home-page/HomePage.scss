@@ -1,0 +1,266 @@
+.home-page {
+  height: calc(100% - 50px);
+  position: relative;
+  .container {
+    width: 100%;
+    display: flex;
+    height: 100%;
+  }
+
+  .submit-confirm {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+
+    .overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background-color: black;
+      opacity: 0.5;
+    }
+
+    .confirm-popup {
+      position: absolute;
+      z-index: 1000000;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      width: 30%;
+      min-width: 380px;
+      aspect-ratio: 380 / 180 !important;
+      border-radius: 7px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .confirm-popup__header {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        .close-button {
+          font-size: 20px;
+          font-weight: bold;
+          color: #333;
+          cursor: pointer;
+          border: none;
+          background: none;
+          outline: none;
+        }
+
+        .close-button:hover {
+          color: red;
+        }
+      }
+
+      .confirm-popup__content {
+        padding: 30px 10px;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+      }
+
+      .confirm-popup__buttons {
+        padding: 10px;
+        display: flex;
+        justify-content: end;
+        gap: 15px;
+
+        .confirm-button {
+          padding: 7px 15px;
+          color: white;
+          font-weight: bold;
+          outline: none;
+          border: none;
+          border-radius: 7px;
+          align-items: center;
+          text-align: center;
+          cursor: pointer;
+          // opacity: 1 !important;
+          &:hover {
+            filter: brightness(80%);
+          }
+        }
+
+        .confirm-button--no {
+          background-color: #616776;
+        }
+
+        .confirm-button--yes {
+          background-color: #e28f2f;
+        }
+      }
+    }
+  }
+
+  .choose-query-index,
+  .mode {
+    font-weight: bold;
+    position: fixed;
+
+    // left: 15px;
+    .input-query-index {
+      margin-left: 15px;
+      padding: 2px 4px;
+      outline: none;
+      font-size: 15px;
+    }
+  }
+
+  .choose-query-index {
+    right: 100px;
+    top: 10px;
+  }
+
+  .setting-translate-acc {
+    position: fixed;
+    top: 15px;
+    left: 10px;
+    height: 20px;
+    aspect-ratio: 1 / 1;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    background-color: inherit;
+    z-index: 11000;
+    svg {
+      height: 100%;
+      width: 100%;
+    }
+
+    .list-translate-acc {
+      width: 100px;
+      // height: 100px;
+      position: absolute;
+      top: 22px;
+      left: 0;
+      background-color: rgb(240, 172, 63);
+      border-radius: 5px;
+      padding: 3px;
+      .title {
+        font-size: 14px;
+        font-weight: bold;
+        background-color: #2face2;
+        border-radius: 2px;
+      }
+
+      .acc-item {
+        width: 100%;
+        height: 20px;
+        border-radius: 2px;
+        cursor: pointer;
+        // background-color: #73c0fc;
+
+        &:hover {
+          background-color: #066f02;
+          color: white;
+        }
+      }
+
+      .active-acc {
+        background-color: #066f02;
+        color: white;
+      }
+    }
+  }
+
+  // .mode {
+  //   top: 10px;
+  //   right: 15px !important;
+  //   cursor: pointer;
+
+  //   .switch {
+  //     position: relative;
+  //     display: inline-block;
+  //     width: 80px; // Giữ nguyên chiều rộng là 100px
+  //     height: 30px; // Chỉnh chiều cao xuống 30px
+  //     cursor: pointer;
+
+  //     .text-mode,
+  //     .QA-mode {
+  //       position: absolute;
+  //       top: 50%;
+  //       transform: translateY(-50%);
+  //       font-weight: bold;
+  //       font-size: 14px;
+  //       transition: opacity 0.4s ease;
+  //     }
+
+  //     .text-mode {
+  //       right: 10px;
+  //       color: black;
+  //     }
+
+  //     .QA-mode {
+  //       left: 10px;
+  //       right: 0;
+  //       color: white;
+  //       letter-spacing: 2px;
+  //       opacity: 0; // Mặc định ẩn QA-mode khi không check
+  //     }
+
+  //     input {
+  //       opacity: 0;
+  //       width: 100%;
+  //       height: 100%;
+  //       z-index: 10;
+  //       position: absolute;
+  //       cursor: pointer;
+  //     }
+
+  //     input:not(:checked) ~ .QA-mode {
+  //       opacity: 0 !important; // Ẩn QA-mode khi không check
+  //     }
+
+  //     input:checked ~ .QA-mode {
+  //       opacity: 1 !important; // Hiển thị QA-mode khi được check
+  //     }
+
+  //     input:checked ~ .text-mode {
+  //       opacity: 0 !important; // Ẩn text-mode khi được check
+  //     }
+
+  //     .slider {
+  //       position: absolute;
+  //       cursor: pointer;
+  //       top: 0;
+  //       left: 0;
+  //       right: 0;
+  //       bottom: 0;
+  //       background-color: #73c0fc;
+  //       transition: 0.4s;
+  //       border-radius: 30px;
+
+  //       &:before {
+  //         position: absolute;
+  //         content: "";
+  //         height: 26px;
+  //         width: 26px;
+  //         border-radius: 20px;
+  //         left: 2px;
+  //         bottom: 2px;
+  //         z-index: 2;
+  //         background-color: #e8e8e8;
+  //         transition: 0.4s;
+  //       }
+  //     }
+
+  //     input:checked + .slider {
+  //       background-color: #183153;
+  //     }
+
+  //     input:focus + .slider {
+  //       box-shadow: 0 0 1px #183153;
+  //     }
+
+  //     input:checked + .slider:before {
+  //       transform: translateX(
+  //         50px
+  //       ); // Điều chỉnh khoảng cách di chuyển của bóng trượt
+  //     }
+  //   }
+  // }
+}

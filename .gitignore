@@ -1,0 +1,13 @@
+node_modules
+__pycache__
+frames
+result
+clip_test.ipynb
+*.pt
+*.jpg
+# *.png
+*.jpeg
+volumes
+text_detect_restult
+gg-sheet-credentials.json
+*.csv

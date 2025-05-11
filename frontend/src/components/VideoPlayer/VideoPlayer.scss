@@ -1,0 +1,111 @@
+$rangeColor: #f50;
+
+.video-player {
+  height: 85%;
+  width: fit-content;
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+
+  .wrap-time-to-skip {
+    position: absolute;
+    left: 0;
+    top: -30px;
+    display: flex;
+    // height: 20px;
+    color: rgb(37, 198, 242);
+    font-weight: bold;
+
+    input {
+      outline: none;
+      margin-left: 10px;
+      width: 50px;
+    }
+  }
+  .video-area {
+    height: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    width: auto !important;
+    // min-width: 640px !important;
+    // min-height: 360px !important;
+    position: relative !important;
+  }
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    // background-color: rgba(0, 0, 0, 0.7);
+    padding: 0 10px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    color: white;
+    .pause-button {
+      width: 25px;
+      height: 25px;
+
+      .icon {
+        width: 100%;
+        height: 100%;
+        fill: #f00400;
+      }
+    }
+
+    .pause-button {
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1;
+      margin: 0 10px;
+      cursor: pointer;
+      outline: none;
+      border-radius: 15px;
+
+      height: 6px;
+      background: #ccc;
+
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 15px;
+        width: 15px;
+        background-color: #f50;
+        border-radius: 50%;
+        border: none;
+
+        transition: 0.2s ease-in-out;
+      }
+
+      &::-moz-range-thumb {
+        height: 15px;
+        width: 15px;
+        background-color: #f50;
+        border-radius: 50%;
+        border: none;
+
+        /* box-shadow: -407px 0 0 400px #f50; emove this line */
+        transition: 0.2s ease-in-out;
+      }
+
+      &:active::-webkit-slider-thumb {
+        box-shadow: 0 0 0 13px rgba(255, 85, 0, 0.2);
+      }
+
+      &:active::-moz-range-thumb {
+        box-shadow: 0 0 0 13px rgba(255, 85, 0, 0.2);
+      }
+    }
+  }
+}

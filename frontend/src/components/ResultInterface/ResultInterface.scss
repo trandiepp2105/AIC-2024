@@ -1,0 +1,350 @@
+.result-interface {
+  width: 100%;
+  height: calc(100% - 35px);
+  padding-top: 7px;
+
+  .submit-confirm {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    .overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background-color: black;
+      opacity: 0.5;
+    }
+
+    .confirm-popup {
+      position: absolute;
+      z-index: 1000000;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      width: 30%;
+      min-width: 380px;
+      aspect-ratio: 380 / 180 !important;
+      border-radius: 7px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .confirm-popup__header {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        .close-button {
+          font-size: 20px;
+          font-weight: bold;
+          color: #333;
+          cursor: pointer;
+          border: none;
+          background: none;
+          outline: none;
+        }
+
+        .close-button:hover {
+          color: red;
+        }
+      }
+
+      .confirm-popup__content {
+        padding: 30px 10px;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+
+        .query-index {
+          margin: 0 5px;
+          font-weight: bold;
+          color: orangered;
+          font-size: 25px;
+        }
+      }
+
+      .confirm-popup__buttons {
+        padding: 10px;
+        display: flex;
+        justify-content: end;
+        gap: 15px;
+
+        .confirm-button {
+          padding: 7px 15px;
+          color: white;
+          font-weight: bold;
+          outline: none;
+          border: none;
+          border-radius: 7px;
+          align-items: center;
+          text-align: center;
+          cursor: pointer;
+          // opacity: 1 !important;
+          &:hover {
+            filter: brightness(80%);
+          }
+        }
+
+        .confirm-button--no {
+          background-color: #616776;
+        }
+
+        .confirm-button--yes {
+          background-color: #e28f2f;
+        }
+      }
+    }
+  }
+
+  .container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+      display: none; /* Ẩn thanh cuộn */
+    }
+
+    .padding-box {
+      width: 100%;
+      min-height: 50px !important;
+      // background-color: red;
+      display: block;
+    }
+
+    .button-block {
+      position: fixed;
+      z-index: 10000;
+      bottom: 10px;
+      left: 5px;
+      width: calc(20% - 10px);
+      display: flex;
+      justify-content: space-between;
+      & > button {
+        width: calc((100% - 10px) / 2);
+      }
+      .download-button {
+        font-weight: bold;
+        color: black;
+        background-color: rgb(83, 170, 224);
+        padding: 7px;
+        margin: 5px 0;
+        outline: none;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: medium;
+        &:hover {
+          filter: brightness(90%);
+        }
+
+        &:active {
+          filter: brightness(100%);
+        }
+      }
+
+      .clear-button {
+        font-weight: bold;
+        color: black;
+        background-color: rgb(227, 112, 118);
+        padding: 7px;
+        margin: 5px 0;
+        outline: none;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: medium;
+        &:hover {
+          filter: brightness(90%);
+        }
+
+        &:active {
+          filter: brightness(100%);
+        }
+      }
+    }
+
+    .wrapper-result {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      gap: 5px;
+      padding: 1px;
+
+      .active-result-item {
+        background-color: rgb(186, 186, 186) !important;
+      }
+      .result-item {
+        box-sizing: border-box;
+        width: 100%;
+        height: 50px;
+        // background-color: red;
+        background-color: white;
+        border-radius: 7px;
+        padding: 5px;
+        padding-left: 7px;
+        // cursor: pointer;
+        &:hover {
+          background-color: rgb(186, 186, 186);
+        }
+
+        &:active {
+          background-color: rgb(186, 186, 186);
+          filter: brightness(90%);
+        }
+        box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.59);
+        -webkit-box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.59);
+        -moz-box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.59);
+        .result-item__general {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          height: 20px;
+          font-size: 14px;
+          span {
+            color: cadetblue;
+            font-weight: bold;
+          }
+          .query-index {
+            font-size: 14px;
+          }
+
+          .result-btn-block {
+            display: flex;
+            gap: 10px;
+            height: 100%;
+
+            .result-btn {
+              height: 100%;
+              aspect-ratio: 1 / 1;
+              outline: none;
+              border: none;
+              background-color: inherit;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              // background-color: red;
+              border-radius: 4px;
+              &:hover {
+                pointer-events: all;
+              }
+              &:hover {
+                background-color: rgb(200, 196, 196);
+              }
+              svg {
+                width: 80%;
+              }
+            }
+
+            .delete-svg {
+              path {
+                stroke: rgb(245, 90, 90);
+              }
+            }
+
+            .download-svg {
+              path {
+                stroke: rgb(39, 144, 210); /* Đổi màu stroke thành màu đỏ */
+                stroke-width: 2;
+              }
+            }
+          }
+        }
+        .result-item__detail {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          height: 20px;
+          font-size: 12px;
+          color: rgb(79, 77, 77);
+        }
+      }
+    }
+  }
+
+  .download-confirm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* Sử dụng rgba thay cho opacity */
+    z-index: 11000;
+
+    .inner {
+      position: absolute;
+      z-index: 3000;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 150px;
+      background-color: rgba(115, 192, 252, 0.9);
+
+      border-radius: 10px;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      .title {
+        font-size: 15px;
+        font-weight: bold;
+        color: black;
+      }
+
+      .pick-queries {
+        flex: 1;
+        width: 100%;
+        display: flex;
+        gap: 10px;
+
+        .pick-queries--item {
+          width: 50%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          input {
+            width: 90%;
+            outline: none;
+          }
+        }
+      }
+
+      .download-services {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 10px;
+        button {
+          outline: none;
+          border: none;
+          padding: 3px 5px;
+          background-color: rgb(30, 164, 9);
+          border-radius: 5px;
+          cursor: pointer;
+
+          &:hover {
+            filter: brightness(90%);
+          }
+
+          &:active {
+            filter: brightness(80%);
+          }
+        }
+
+        .close {
+          background-color: rgb(243, 46, 46);
+        }
+      }
+    }
+  }
+}

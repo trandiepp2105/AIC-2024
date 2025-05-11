@@ -1,0 +1,8 @@
+onedrivedownloader
+pygments
+pillow
+requests
+tqdm
+pandas
+opencv-python
+open_clip_torch

@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  ai:
+    build: 
+      context: ../download_data
+      dockerfile: Dockerfile
+    container_name: download_data
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - ./.env
+    volumes:
+      - type: bind
+        source: ../download_data
+        target: /download_data
+      - type: bind
+        source: ${HOST_ROOT_DIR}
+        target: ${ROOT_DIR}
+    networks:
+      - localnet
+
+networks:
+  localnet:
+    driver: bridge

@@ -1,0 +1,420 @@
+.overlay {
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  opacity: 0.9;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+}
+
+.display-mode {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: fit-content;
+  z-index: 11000;
+  cursor: pointer;
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 80px; // Giữ nguyên chiều rộng là 100px
+    height: 30px; // Chỉnh chiều cao xuống 30px
+    cursor: pointer;
+    // z-index: 11000;
+    .list-mode,
+    .grid-mode {
+      position: absolute;
+      top: 50%;
+      // z-index: 11000;
+      transform: translateY(-50%);
+      font-weight: bold;
+      font-size: 14px;
+      transition: opacity 0.4s ease;
+    }
+
+    .list-mode {
+      right: 10px;
+      color: black;
+    }
+
+    .grid-mode {
+      left: 10px;
+      right: 0;
+      color: white;
+      letter-spacing: 2px;
+      opacity: 0; // Mặc định ẩn QA-mode khi không check
+    }
+
+    input {
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      position: absolute;
+      cursor: pointer;
+    }
+
+    input:not(:checked) ~ .grid-mode {
+      opacity: 0 !important; // Ẩn QA-mode khi không check
+    }
+
+    input:checked ~ .grid-mode {
+      opacity: 1 !important; // Hiển thị QA-mode khi được check
+    }
+
+    input:checked ~ .list-mode {
+      opacity: 0 !important; // Ẩn text-mode khi được check
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #73c0fc;
+      transition: 0.4s;
+      border-radius: 30px;
+
+      &:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        border-radius: 20px;
+        left: 2px;
+        bottom: 2px;
+        z-index: 2;
+        background-color: #e8e8e8;
+        transition: 0.4s;
+      }
+    }
+
+    input:checked + .slider {
+      background-color: #183153;
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px #183153;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(
+        50px
+      ); // Điều chỉnh khoảng cách di chuyển của bóng trượt
+    }
+  }
+}
+
+.picking-frame-item-group {
+  border: 2px solid rgb(245, 140, 11) !important;
+}
+.frame-item-group {
+  border: 2px solid rgb(11, 245, 50) !important;
+}
+
+.button-close {
+  position: fixed;
+  z-index: 10002;
+  top: 10px;
+  right: 10px;
+  outline: none;
+  border: none;
+  border-radius: 3px;
+  padding: 3px 5px;
+
+  background-color: rgb(246, 133, 63);
+
+  font-weight: bold;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(90%);
+  }
+
+  &:active {
+    filter: brightness(80%);
+  }
+}
+
+.button-upload {
+  position: fixed;
+  z-index: 10002;
+  top: 10px;
+  left: 10px;
+  outline: none;
+  border: none;
+  border-radius: 3px;
+  padding: 3px 5px;
+  background-color: rgb(83, 170, 224);
+  font-weight: bold;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(90%);
+  }
+
+  &:active {
+    filter: brightness(80%);
+  }
+}
+
+.adjacent-frame {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  .metadata {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 15px;
+
+    display: flex;
+    align-items: center;
+
+    justify-content: space-between;
+    font-size: 10px;
+    font-family: "Moderustic", sans-serif;
+    span {
+      width: fit-content;
+      background: rgba(17, 17, 17, 0.6);
+      padding: 0 2px;
+      color: white;
+    }
+  }
+  .middle-frame {
+    position: relative;
+    width: calc(100% / 8);
+    margin-bottom: 20px;
+    img {
+      width: 100%;
+    }
+  }
+
+  .middle-frame--grid {
+    position: absolute;
+
+    top: 50px;
+    left: 20px !important;
+  }
+
+  .display-row-frame {
+    left: 0;
+    width: 100%; /* Chiều rộng khung chính */
+    min-height: 150px;
+    background-color: white;
+    display: flex;
+    overflow-x: auto;
+    align-items: center;
+    gap: 10px;
+  }
+  .display-row-frame,
+  .display-grid-frame {
+    // margin-bottom: 10%;
+    .adjacent-frame-item {
+      position: relative;
+      flex: 0 0 auto; /* Ngăn Flexbox thu nhỏ phần tử */
+      width: calc((100% - 50px) / 6); /* Chiều rộng mỗi frame */
+      height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid black;
+      height: fit-content;
+      border: 2px solid;
+      img {
+        // max-width: 100%;
+        // max-height: 100%;
+        width: 100%;
+      }
+
+      .frame-item-checkbox {
+        position: absolute;
+        outline: none;
+        top: 2px;
+        right: 2px;
+        height: 18px;
+        width: 18px;
+        appearance: none;
+        z-index: 100;
+        cursor: pointer;
+      }
+
+      .cus-checkbox {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        height: 18px;
+        width: 18px;
+        background: #e6e6e6;
+        // background: #38cf9a;
+        background-color: #38cf9a;
+        border: 1px solid #000000;
+        border-radius: 0px;
+        display: none;
+        cursor: pointer;
+      }
+
+      &:hover .cus-checkbox {
+        display: block !important;
+      }
+
+      // input:checked ~ .cus-checkbox {
+      //   background-color: #38cf9a;
+      //   // display: block;
+      // }
+      input:checked ~ .cus-checkbox::after {
+        box-sizing: unset;
+        content: "";
+        position: absolute;
+        // display: block;
+        left: 6.5px;
+        top: 2.5px;
+        width: 3px;
+        height: 8px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+      input:checked & {
+        border: 1px solid red !important; /* Màu border mới */
+      }
+      .select-multi-frame {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        height: 18px;
+        width: 18px;
+        appearance: none;
+        z-index: 100;
+        cursor: pointer;
+      }
+
+      .select-multi-frame:checked & {
+        background-color: #f1552a !important;
+      }
+
+      .cus-multi-select {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        height: 18px;
+        width: 18px;
+        background: #e6e6e6;
+        // background: #38cf9a;
+        border: 1px solid #000000;
+        border-radius: 0px;
+        display: none;
+        // appearance: none;
+        background-color: #f1552a;
+        cursor: pointer;
+      }
+
+      &:hover .cus-multi-select {
+        display: block !important;
+      }
+
+      .select-multi-frame:checked ~ .cus-multi-select {
+        background-color: #f1552a;
+        display: block !important;
+      }
+      .select-multi-frame:checked ~ .cus-multi-select::after {
+        box-sizing: unset;
+        content: "";
+        position: absolute;
+        // display: block;
+        left: 6.5px;
+        top: 2.5px;
+        width: 3px;
+        height: 8px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+      // .select-multi-frame:checked & {
+      //   border: 1px solid red !important; /* Màu border mới */
+      // }
+    }
+
+    .selected-adjacent-frame {
+      border-color: #f1552a !important;
+    }
+  }
+
+  .display-grid-frame {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    overflow-y: auto;
+    gap: 8px;
+    width: calc(100% - 70px - (100% / 8));
+    height: calc(100vh - 55px);
+    background-color: white;
+    .adjacent-frame-item {
+      width: calc((100% - 40px) / 6);
+    }
+  }
+}
+
+.choose-duration {
+  bottom: 20px;
+  display: flex;
+  margin: 20px 0;
+  color: white;
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  .wrap-button {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+  input {
+    width: 50px;
+    outline: none;
+    padding: 0 2px;
+  }
+
+  button {
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    background-color: rgb(83, 170, 224);
+    padding: 2px 10px;
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(90%);
+    }
+
+    &:active {
+      filter: brightness(80%);
+    }
+  }
+}
+.choose-duration--grid {
+  position: absolute;
+  left: 20px;
+  bottom: 50%;
+  // bottom: 10px;
+}

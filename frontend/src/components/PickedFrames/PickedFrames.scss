@@ -1,0 +1,136 @@
+.submit-confirm {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  .overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: black;
+    opacity: 0.5;
+  }
+
+  .confirm-popup {
+    position: absolute;
+    z-index: 1000000;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    width: 30%;
+    min-width: 380px;
+    aspect-ratio: 380 / 180 !important;
+    border-radius: 7px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    .confirm-popup__header {
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      .close-button {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+        cursor: pointer;
+        border: none;
+        background: none;
+        outline: none;
+      }
+
+      .close-button:hover {
+        color: red;
+      }
+    }
+
+    .confirm-popup__content {
+      display: flex;
+      padding: 30px 10px;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      align-items: end;
+      .query-index {
+        margin: 0 5px;
+        font-weight: bold;
+        color: orangered;
+        font-size: 25px;
+      }
+    }
+
+    .confirm-popup__buttons {
+      padding: 10px;
+      display: flex;
+      justify-content: end;
+      gap: 15px;
+
+      .confirm-button {
+        padding: 7px 15px;
+        color: white;
+        font-weight: bold;
+        outline: none;
+        border: none;
+        border-radius: 7px;
+        align-items: center;
+        text-align: center;
+        cursor: pointer;
+        // opacity: 1 !important;
+        &:hover {
+          filter: brightness(80%);
+        }
+      }
+
+      .confirm-button--no {
+        background-color: #616776;
+      }
+
+      .confirm-button--yes {
+        background-color: #e28f2f;
+      }
+    }
+  }
+}
+
+.picked-frames-container {
+  width: 100%;
+  overflow: visible;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  .frame-item {
+    position: relative;
+
+    .frame-service {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      width: calc(100% - 20px);
+    }
+    .display-adjacent-frame-btn {
+      border: none;
+      outline: none;
+      background-color: rgb(68, 224, 151);
+      font-weight: bold;
+      padding: 2px 3px;
+      cursor: pointer;
+      border: 1px solid black;
+      font-size: 12px;
+    }
+
+    .enter-answer-button {
+      border: none;
+      outline: none;
+      background-color: rgb(249, 101, 48);
+      font-weight: bold;
+      padding: 2px 3px;
+      cursor: pointer;
+      border: 1px solid black;
+      font-size: 12px;
+      color: white;
+    }
+  }
+}
