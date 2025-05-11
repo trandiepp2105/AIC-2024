@@ -1,51 +1,139 @@
-<h1 align="center">AI Challenge 2024 - Query Events from Video</h1>
+<p align="center">
+  <img src="assets/your_project_logo_or_banner.png" alt="AI Challenge 2024 Project Banner" width="700"/>
+  <!-- **THAY THẾ 'assets/your_project_logo_or_banner.png' BẰNG LOGO HOẶC BANNER DỰ ÁN CỦA BẠN (NẾU CÓ)** -->
+</p>
+
+<h1 align="center">AI Challenge 2024 - Multi-Modal Video Event Retrieval</h1>
+
+<p align="center">
+  <em>A sophisticated system for querying and retrieving specific events from videos using text, image, and audio inputs.</em>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/AI_Challenge_2024-Top_10_Finalist-brightgreen?style=for-the-badge" alt="Top 10 Finalist Badge"/>
+  <!-- You can add more badges like build status, license, etc. -->
+</p>
 
 <p align="center">
   <b>Team:</b> Tứ Đại Thạch Hầu
-</p>
-
-<p align='center'> <b>Members:</b> Khanh Duy Ho, Minh Duy Nguyen, Van Diep Tran, Hong Son Nguyen
+  <br>
+  <b>Members:</b> Khanh Duy Ho, Minh Duy Nguyen, Van Diep Tran, Hong Son Nguyen
 </p>
 
 <p align="center">
-  <img src="assets\members.jpg" alt="Cosine Similarity" width="100%">
+  <img src="assets/members.jpg" alt="Team Tứ Đại Thạch Hầu" width="80%" style="border-radius: 10px;"/>
+  <!-- Consider adjusting width and adding a border-radius for a polished look -->
 </p>
 
-## Project Description
+---
 
-This project builds a video retrieval system based on text, image and audio queries. The system uses deep learning models and vector databases to speed up the query and ensure high accuracy when searching for relevant content in videos.
+## 🌟 Project Overview
 
-## System Overview
+This project introduces an advanced **video retrieval system** designed to accurately and efficiently locate specific events within video content based on diverse query types: **text, image, and audio**. By harnessing the power of cutting-edge deep learning models and robust vector databases, our system significantly accelerates the query process while maintaining high precision in identifying relevant video segments.
 
-The system consists of a frontend built with **ReactJS** and a backend implemented using **FastAPI**:
+---
 
-- **Frontend (ReactJS):** Provides a user-friendly interface that allows users to input their queries in various forms (text, image, audio) and displays search results in a visually appealing manner.
-- **Backend (FastAPI):** Manages the processing of queries, communicates with the deep learning models, and handles interactions with the vector database (Milvus) and Elasticsearch for efficient data retrieval.
+## 🚀 System Architecture
 
-Some pictures of the system:
-| ![Image 1](assets/capture-1.png) | ![Image 2](assets/capture-2.jpeg) | ![Image 3](assets/capture-3.jpeg) |
-| ---------------------------------- | ---------------------------------- | ---------------------------------- |
-| ![Image 4](assets/capture-4.jpeg) | ![Image 5](assets/capture-5.jpeg) | ![Image 6](assets/capture-6.png) |
-| ![Image 7](assets/capture-8.jpeg) | ![Image 8](assets/capture-9.jpeg) | ![Image 9](assets/capture-10.jpeg) |
+Our solution is architected with a user-centric frontend and a powerful backend, ensuring a seamless and effective user experience:
 
-## Implementation process
+*   🎨 **Frontend (ReactJS):**
+    *   Delivers an intuitive and interactive user interface.
+    *   Allows users to effortlessly submit queries through text input, image uploads, or audio recordings.
+    *   Presents search results in a clear, organized, and visually engaging manner.
 
-### 1. Video Processing and Frame Selection
+*   ⚙️ **Backend (FastAPI):**
+    *   Serves as the core processing engine, intelligently handling multi-modal queries.
+    *   Orchestrates communication with sophisticated deep learning models for feature extraction and understanding.
+    *   Manages high-performance interactions with **Milvus** (for vector similarity search) and **Elasticsearch** (for textual data indexing and search), ensuring rapid and accurate data retrieval.
 
-- **Crop and select frames:** The input video is cut into consecutive frames. Duplicate frames or frames without new information are discarded based on the similarity of the embedding vector.
-- **Embedding and comparison:** Use CLIP and CLIP4Clip models to represent frames and queries as embedding vectors. The similarity between the query and frames is calculated based on `cosine similarity`.
-  <!-- ![Cosine Similarity](assets/cosine_similarity.png) -->
+---
 
-### 2. Extract Information from Video
+## 🖼️ System Snapshots
 
-- **OCR (Optical Character Recognition):** Use OCR to extract text from video frames, adding more information to the frames, increasing search accuracy.
-- **Voice recognition:** Extract subtitles from YouTube videos to add semantic information to video content, improving the searchability of videos with dialogue.
+A glimpse into our system's interface and capabilities:
 
-### 3. Vector Database and Query Acceleration
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><img src="assets/capture-1.png" alt="System Interface - Query Input" width="300"/><br><sub>Query Input Interface</sub></td>
+      <td align="center"><img src="assets/capture-2.jpeg" alt="System Interface - Image Query Results" width="300"/><br><sub>Image Query Results</sub></td>
+      <td align="center"><img src="assets/capture-3.jpeg" alt="System Interface - Text Query Results" width="300"/><br><sub>Text Query Results</sub></td>
+    </tr>
+    <tr>
+      <td align="center"><img src="assets/capture-4.jpeg" alt="System Interface - Frame Details" width="300"/><br><sub>Detailed Frame View</sub></td>
+      <td align="center"><img src="assets/capture-5.jpeg" alt="System Interface - Audio Query" width="300"/><br><sub>Audio Query Processing</sub></td>
+      <td align="center"><img src="assets/capture-6.png" alt="System Interface - Results Ranking" width="300"/><br><sub>Ranked Search Results</sub></td>
+    </tr>
+     <tr>
+      <td align="center"><img src="assets/capture-8.jpeg" alt="System Interface - Another View 1" width="300"/><br><sub>Additional View 1</sub></td>
+      <td align="center"><img src="assets/capture-9.jpeg" alt="System Interface - Another View 2" width="300"/><br><sub>Additional View 2</sub></td>
+      <td align="center"><img src="assets/capture-10.jpeg" alt="System Interface - Another View 3" width="300"/><br><sub>Additional View 3</sub></td>
+    </tr>
+  </table>
+</div>
 
-- **Milvus:** The system uses Milvus to store and query frame embedding vectors. Milvus supports efficient index creation, which reduces query time and speeds up result return.
-- **Elasticsearch:** In addition to Milvus, the system uses Elasticsearch for indexing and searching OCR (Optical Character Recognition) text and transcribed voice data. This enables fast retrieval of textual information extracted from video frames and audio, enhancing the search capabilities for videos containing specific text or spoken content.
+---
 
-### 4. Reranking and Query Combining
+## 🛠️ Core Implementation Details
 
-- The system performs reranking of search results based on different query types (text, image, OCR, voice). This ensures that results with the highest similarity to the user's query are returned.
+Our system employs a multi-stage process to deliver accurate and fast video retrieval:
+
+### 1. Intelligent Video Processing & Frame Selection
+*   **Frame Segmentation & Deduplication:** Input videos are meticulously segmented into constituent frames. To optimize processing and storage, redundant or non-informative frames are intelligently discarded by analyzing the similarity of their embedding vectors.
+*   **Embedding Generation & Similarity Matching:** We utilize state-of-the-art models like **CLIP** and **CLIP4Clip** to transform both video frames and user queries into rich, high-dimensional embedding vectors. The relevance between a query and video frames is then precisely quantified using `cosine similarity`.
+    <p align="center">
+      <img src="assets/cosine_similarity.png" alt="Cosine Similarity Calculation" width="400"/>
+      <br><sub><em>Conceptual representation of Cosine Similarity.</em></sub>
+    </p>
+
+### 2. Multi-Modal Information Extraction
+*   **Optical Character Recognition (OCR):** OCR technology is employed to extract textual information directly from video frames. This enriches the metadata associated with each frame, significantly boosting search accuracy for queries containing specific text.
+*   **Automated Speech Recognition (ASR):** For videos with spoken content (e.g., from YouTube), subtitles or transcriptions are extracted. This adds a crucial layer of semantic information, enabling effective retrieval based on spoken dialogue.
+
+### 3. High-Performance Data Indexing & Retrieval
+*   **Milvus Vector Database:** The core of our similarity search relies on Milvus, a highly scalable and efficient open-source vector database. Milvus stores and indexes the embedding vectors of video frames, facilitating rapid similarity searches through optimized indexing structures (e.g., HNSW, IVF_FLAT), which dramatically reduces query latency.
+*   **Elasticsearch Integration:** Complementing Milvus, Elasticsearch is utilized for robust indexing and searching of textual data extracted via OCR and ASR. This dual-database approach allows for powerful hybrid searches, combining semantic vector similarity with keyword-based textual matching.
+
+### 4. Advanced Result Reranking & Query Fusion
+*   To provide the most pertinent results, the system incorporates a sophisticated **reranking mechanism**. Search results originating from different query modalities (text, image, OCR, ASR) and feature extractors are intelligently combined and re-ordered, ensuring that the final output optimally aligns with the user's intent.
+
+---
+
+## 🚀 Getting Started (Optional - Add if you want others to run it)
+
+<!--
+Instructions on how to set up and run the project locally.
+Include:
+- Prerequisites (Python version, Node.js version, Docker, etc.)
+- Backend setup (virtual environment, dependencies, running the server)
+- Frontend setup (dependencies, running the development server)
+- Environment variables configuration
+-->
+
+---
+
+## 🤝 Contributing (Optional - Add if open to contributions)
+
+<!--
+Information on how others can contribute to the project.
+- Fork the repository
+- Create a new branch
+- Make changes
+- Submit a pull request
+-->
+
+---
+
+## 📜 License (Optional - Add if you have a license)
+
+<!--
+This project is licensed under the [NAME OF LICENSE] - see the LICENSE.md file for details.
+Example: MIT License
+-->
+
+---
+
+<p align="center">
+  <em>Thank you for exploring our AI Challenge 2024 project!</em>
+</p>
